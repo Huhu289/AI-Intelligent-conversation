@@ -1,3 +1,4 @@
+      
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -132,6 +133,8 @@ textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;
 <div class="section">会话预警</div>
 <div class="nav-item active" onclick="showPage('alert-list')">📋 预警记录</div>
 <div class="nav-item" onclick="showPage('alert-detail')">📄 预警详情</div>
+<div class="nav-item" onclick="showPage('alert-strategy')">🎯 预警策略</div>
+<div class="nav-item" onclick="showPage('reminder')">🔔 工作提醒设置</div>
 <div class="section">会话质检</div>
 <div class="nav-item" onclick="showPage('qc-list')">📝 质检记录</div>
 <div class="nav-item" onclick="showPage('qc-rules')">⚙️ 质检规则</div>
@@ -139,7 +142,7 @@ textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;
 <div class="nav-item" onclick="showPage('keyword-mgr')">🔍 词库管理</div>
 <div class="nav-item" onclick="showPage('keyword-tmpl')">📦 行业模板</div>
 <div class="section">数据分析</div>
-<div class="nav-item disabled">📊 会话分析 <span class="badge">二期</span></div>
+<div class="nav-item" onclick="showPage('analysis')">📊 会话分析中心</div>
 </div>
 <div class="main">
 <!-- 页面1: 预警记录列表 -->
@@ -231,6 +234,96 @@ textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;
 </div>
 </div>
 </div>
+
+
+<!-- 页面3: 预警策略 -->
+<div class="page" id="page-alert-strategy">
+<div class="page-title">预警策略配置</div>
+<div class="detail-grid">
+<div>
+<div class="detail-card" style="margin-bottom:20px">
+<h3>🎛️ 基础开关与事件类型</h3>
+<div class="config-row"><div><div class="c-label">启用会话预警中心</div><div class="c-desc">关闭后暂停识别、打标和提醒</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">风险预警</div><div class="c-desc">愤怒、投诉升级、维权威胁</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">敏感预警</div><div class="c-desc">退款、举报、差评、曝光</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">商机预警</div><div class="c-desc">明确询价、催发货、高成交意向</div></div><span class="toggle on"></span></div>
+</div>
+<div class="detail-card" style="margin-bottom:20px">
+<h3>⚙️ 阈值与频控</h3>
+<div class="config-row"><div><div class="c-label">P1 风险阈值</div><div class="c-desc">情绪分 + 关键词组合命中</div></div><input type="number" value="85"/></div>
+<div class="config-row"><div><div class="c-label">P2 敏感阈值</div><div class="c-desc">规则词 + 上下文判定</div></div><input type="number" value="70"/></div>
+<div class="config-row"><div><div class="c-label">P3 商机阈值</div><div class="c-desc">意图分 + 行为信号</div></div><input type="number" value="65"/></div>
+<div class="config-row"><div><div class="c-label">同客户同类型去重窗口（分钟）</div><div class="c-desc">避免重复提醒轰炸</div></div><input type="number" value="15"/></div>
+</div>
+</div>
+<div>
+<div class="detail-card" style="margin-bottom:20px">
+<h3>🧠 判定策略</h3>
+<div class="config-row"><div><div class="c-label">规则前置过滤</div><div class="c-desc">先过滤 60%-70% 无效消息，降低成本</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">分层上下文策略</div><div class="c-desc">快速层(0轮)→标准层(3轮)→深度层</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">商机与风险冲突处理</div><div class="c-desc">同条消息同时命中时优先判为风险</div></div><span class="tag tag-rule">已开启</span></div>
+<div class="config-row"><div><div class="c-label">商机最高等级限制</div><div class="c-desc">商机类最高 P3，禁止升到 P1/P2</div></div><span class="tag tag-rule">已开启</span></div>
+</div>
+<div class="detail-card">
+<h3>🧩 触发样例预览</h3>
+<div style="font-size:13px;line-height:1.8;color:var(--sub)">
+• 客户："再不处理我就投诉 12315" → <span class="tag tag-p1">风险 P1</span><br/>
+• 客户："我要退款，你们质量太差了" → <span class="tag tag-p2">敏感 P2</span><br/>
+• 客户："今天下单能发货吗？有优惠吗" → <span class="tag tag-p3">商机 P3</span>
+</div>
+<div class="action-area" style="margin-top:16px">
+<button class="btn btn-outline">预览命中效果</button>
+<button class="btn btn-primary">保存策略</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 页面4: 工作提醒设置 -->
+<div class="page" id="page-reminder">
+<div class="page-title">工作提醒设置</div>
+<div class="detail-grid">
+<div>
+<div class="detail-card" style="margin-bottom:20px">
+<h3>🔔 分级提醒策略</h3>
+<div class="config-row"><div><div class="c-label">P1 立即提醒</div><div class="c-desc">10 秒内推送到负责人 + 主管</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">P2 汇总提醒</div><div class="c-desc">每 15 分钟推送一次</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">P3 小时提醒</div><div class="c-desc">商机类每小时汇总一次</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">待处理超时自动升级</div><div class="c-desc">超 5 分钟自动提醒主管</div></div><span class="toggle on"></span></div>
+</div>
+<div class="detail-card">
+<h3>📨 提醒模板</h3>
+<div style="font-size:12px;color:var(--sub);margin-bottom:8px">P1 模板</div>
+<textarea>【P1风险预警】客户{customer_name}触发{event_type}，建议{suggestion}，请{owner_name}在5分钟内处理。</textarea>
+<div style="font-size:12px;color:var(--sub);margin:10px 0 8px">P2 模板</div>
+<textarea>【P2敏感预警】客户{customer_name}命中{trigger_text}，请在15分钟内跟进并更新处理状态。</textarea>
+</div>
+</div>
+<div>
+<div class="detail-card" style="margin-bottom:20px">
+<h3>🛣️ 路由与免打扰</h3>
+<div class="config-row"><div><div class="c-label">默认路由</div><div class="c-desc">按客户归属员工 → 组长 → 店长</div></div><span class="tag tag-rule">已启用</span></div>
+<div class="config-row"><div><div class="c-label">按技能组分配</div><div class="c-desc">售后/活动/物流按专组路由</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">免打扰时段</div><div class="c-desc">23:00-08:00（P1仍强提醒）</div></div><span class="tag tag-rule">已设置</span></div>
+</div>
+<div class="detail-card">
+<h3>📌 最近提醒日志</h3>
+<table>
+<tr><th>时间</th><th>等级</th><th>对象</th><th>状态</th></tr>
+<tr><td>20:32:10</td><td><span class="tag tag-p1">P1</span></td><td>王小明 / 客服组长</td><td><span class="tag tag-done">已送达</span></td></tr>
+<tr><td>20:30:00</td><td><span class="tag tag-p2">P2</span></td><td>赵丽颖</td><td><span class="tag tag-done">已送达</span></td></tr>
+<tr><td>20:00:00</td><td><span class="tag tag-p3">P3</span></td><td>张小花</td><td><span class="tag tag-done">已送达</span></td></tr>
+</table>
+<div class="action-area" style="margin-top:16px">
+<button class="btn btn-outline">预览提醒</button>
+<button class="btn btn-primary">保存设置</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
 <!-- 页面3: 质检记录列表 -->
 <div class="page" id="page-qc-list">
 <div class="page-title">质检记录</div>
@@ -437,32 +530,120 @@ textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;
 </div>
 </div>
 
+
+
+<!-- 页面9: 会话分析中心 -->
+<div class="page" id="page-analysis">
+<div class="page-title">会话分析中心</div>
+<div class="cards">
+<div class="card"><div class="label">近7天会话总量</div><div class="value">42,860</div></div>
+<div class="card"><div class="label">平均首响时长</div><div class="value warn">3分12秒</div></div>
+<div class="card"><div class="label">高风险会话占比</div><div class="value danger">6.8%</div></div>
+<div class="card"><div class="label">高意向跟进率</div><div class="value success">81%</div></div>
+</div>
+<div class="detail-grid">
+<div class="detail-card">
+<h3>📈 客户意图分布（近7天）</h3>
+<table>
+<tr><th>意图类型</th><th>会话量</th><th>占比</th><th>趋势</th></tr>
+<tr><td>价格咨询</td><td>8,420</td><td>19.6%</td><td>↑ 6.2%</td></tr>
+<tr><td>发货/物流</td><td>7,905</td><td>18.4%</td><td>↑ 2.1%</td></tr>
+<tr><td>售后退款</td><td>4,386</td><td>10.2%</td><td><span class="tag tag-high">↑ 8.9%</span></td></tr>
+<tr><td>活动咨询</td><td>6,120</td><td>14.3%</td><td>↓ 1.3%</td></tr>
+</table>
+</div>
+<div class="detail-card">
+<h3>🏅 员工服务效率排行</h3>
+<table>
+<tr><th>员工</th><th>首响时长</th><th>处理完成率</th><th>风险会话</th></tr>
+<tr><td>张晨</td><td>1分45秒</td><td>94%</td><td>12</td></tr>
+<tr><td>李敏</td><td>2分10秒</td><td>91%</td><td>18</td></tr>
+<tr><td>王璐</td><td>3分28秒</td><td>83%</td><td>27</td></tr>
+<tr><td>陈晓</td><td>4分05秒</td><td>79%</td><td>33</td></tr>
+</table>
+</div>
+</div>
+<div class="detail-card" style="margin-top:20px">
+<h3>💡 高频问题与动作建议</h3>
+<table>
+<tr><th>高频问题</th><th>发生次数</th><th>影响</th><th>建议动作</th></tr>
+<tr><td>发货时效咨询集中在晚间</td><td>1,235</td><td><span class="tag tag-p2">服务体验下降</span></td><td>补充夜间自动回复模板 + 加班值守1人</td></tr>
+<tr><td>退款进度追问重复出现</td><td>986</td><td><span class="tag tag-p1">客诉升级风险</span></td><td>退款节点自动通知客户，超48h自动升级主管</td></tr>
+<tr><td>活动规则理解偏差</td><td>760</td><td><span class="tag tag-p3">转化损失</span></td><td>统一活动FAQ并在回复建议中置顶</td></tr>
+</table>
+</div>
+</div>
+
 </div><!-- end .main -->
 </div><!-- end .app -->
 
 <script>
+function showToast(msg){
+  let toast=document.getElementById('toast');
+  if(!toast){
+    toast=document.createElement('div');
+    toast.id='toast';
+    toast.style.cssText='position:fixed;right:20px;bottom:20px;background:#1f2329;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:9999;opacity:0;transition:.2s';
+    document.body.appendChild(toast);
+  }
+  toast.textContent=msg;
+  toast.style.opacity='1';
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>toast.style.opacity='0',1400);
+}
+
 function showPage(id){
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-document.getElementById('page-'+id).classList.add('active');
-document.querySelectorAll('.nav-item:not(.disabled)').forEach(n=>n.classList.remove('active'));
-const map={'alert-list':0,'alert-detail':1,'qc-list':2,'qc-rules':3,'keyword-mgr':4,'keyword-tmpl':5};
-const navs=document.querySelectorAll('.nav-item:not(.disabled)');
-if(navs[map[id]])navs[map[id]].classList.add('active');
-window.scrollTo(0,0);
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const target=document.getElementById('page-'+id);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.nav-item:not(.disabled)').forEach(n=>n.classList.remove('active'));
+  const map={'alert-list':0,'alert-detail':1,'alert-strategy':2,'reminder':3,'qc-list':4,'qc-rules':5,'keyword-mgr':6,'keyword-tmpl':7,'analysis':8};
+  const navs=document.querySelectorAll('.nav-item:not(.disabled)');
+  if(navs[map[id]])navs[map[id]].classList.add('active');
+  window.scrollTo(0,0);
 }
+
 function switchTab(el,tabId){
-el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-el.classList.add('active');
-const parent=el.closest('.page');
-parent.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-parent.querySelector('#'+tabId).classList.add('active');
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const parent=el.closest('.page');
+  parent.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  parent.querySelector('#'+tabId).classList.add('active');
 }
+
 function selectGroup(el){
-el.parentElement.querySelectorAll('.group-card').forEach(g=>g.classList.remove('active'));
-el.classList.add('active');
+  el.parentElement.querySelectorAll('.group-card').forEach(g=>g.classList.remove('active'));
+  el.classList.add('active');
 }
+
 function showModal(){document.getElementById('modal').classList.add('show')}
 function hideModal(){document.getElementById('modal').classList.remove('show')}
+
+// 通用交互：开关可点击切换
+window.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.toggle').forEach(sw=>{
+    sw.addEventListener('click',()=>{
+      sw.classList.toggle('on');
+      showToast(sw.classList.contains('on')?'已开启':'已关闭');
+    });
+  });
+
+  // 指定页面按钮反馈
+  document.addEventListener('click',(e)=>{
+    const btn=e.target.closest('.btn');
+    if(!btn || btn.disabled) return;
+    const page=btn.closest('.page')?.id || '';
+    if(['page-alert-strategy','page-reminder','page-alert-detail'].includes(page)){
+      const txt=(btn.textContent||'').trim();
+      if(txt.includes('保存')) showToast('保存成功（示意）');
+      else if(txt.includes('预览')) showToast('已生成预览（示意）');
+      else if(txt.includes('标记已处理')) showToast('已标记为已处理（示意）');
+      else if(txt.includes('标记误报')) showToast('已标记为误报（示意）');
+    }
+  });
+});
 </script>
 </body>
 </html>
+
+    
