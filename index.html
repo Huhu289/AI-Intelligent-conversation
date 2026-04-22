@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>企微助手 - AI智能会话中心（交互原型）</title>
+<title>企微助手 - AI智能会话中心（交互原型v2）</title>
 <style>
 :root{--bg:#f5f7fb;--panel:#fff;--text:#1f2329;--sub:#646a73;--line:#e5e6eb;--brand:#3370ff;--brand-weak:#eef4ff;--danger:#f53f3f;--warn:#ff7d00;--success:#00b42a;--purple:#722ed1;--shadow:0 10px 30px rgba(15,35,95,.08);--radius:14px}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -152,6 +152,12 @@ textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;
 <div class="card"><div class="label">待处理</div><div class="value warn">12</div></div>
 <div class="card"><div class="label">误报数</div><div class="value">3</div></div>
 </div>
+<div class="tabs">
+<div class="tab active" onclick="switchTab(this,'alert-tab-all')">全部</div>
+<div class="tab" onclick="switchTab(this,'alert-tab-risk')">风险与敏感</div>
+<div class="tab" onclick="switchTab(this,'alert-tab-opportunity')">商机</div>
+</div>
+<div class="tab-content active" id="alert-tab-all">
 <div class="filters">
 <select class="filter-select"><option>全部时间</option><option>今天</option><option>最近7天</option><option>最近30天</option></select>
 <select class="filter-select"><option>全部类型</option><option>风险预警</option><option>敏感预警</option><option>商机预警</option></select>
@@ -169,6 +175,36 @@ textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;
 <tr><td>04-20 19:55</td><td>吴九</td><td><span class="tag tag-risk">风险预警</span></td><td><span class="tag tag-p2">P2</span></td><td>强消极情绪 + 售后不满</td><td>王小明</td><td><span class="tag tag-ai">AI识别</span></td><td><span class="tag tag-false">误报</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
 <tr><td>04-20 19:30</td><td>郑十</td><td><span class="tag tag-sensitive">敏感预警</span></td><td><span class="tag tag-p1">P1</span></td><td>命中"曝光" + "媒体"</td><td>赵丽颖</td><td><span class="tag tag-rule">规则命中</span></td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
 </table>
+</div>
+<div class="tab-content" id="alert-tab-risk">
+<div class="filters">
+<select class="filter-select"><option>最近7天</option><option>今天</option><option>最近30天</option></select>
+<select class="filter-select"><option>风险与敏感</option><option>仅风险</option><option>仅敏感</option></select>
+<select class="filter-select"><option>全部等级</option><option>P1</option><option>P2</option></select>
+<select class="filter-select"><option>全部状态</option><option>待处理</option><option>已处理</option><option>误报</option></select>
+</div>
+<table>
+<tr><th>时间</th><th>客户</th><th>事件类型</th><th>等级</th><th>触发原因</th><th>负责人</th><th>状态</th><th>操作</th></tr>
+<tr><td>04-20 21:32</td><td>张三丰</td><td><span class="tag tag-risk">风险预警</span></td><td><span class="tag tag-p1">P1</span></td><td>客户愤怒情绪 + 命中"投诉"</td><td>王小明</td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
+<tr><td>04-20 21:15</td><td>李思思</td><td><span class="tag tag-sensitive">敏感预警</span></td><td><span class="tag tag-p2">P2</span></td><td>命中"退款" + "差评"组合词</td><td>赵丽颖</td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
+<tr><td>04-20 20:41</td><td>赵六</td><td><span class="tag tag-risk">风险预警</span></td><td><span class="tag tag-p1">P1</span></td><td>命中"12315" + 威胁升级</td><td>王小明</td><td><span class="tag tag-done">已处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
+<tr><td>04-20 19:30</td><td>郑十</td><td><span class="tag tag-sensitive">敏感预警</span></td><td><span class="tag tag-p1">P1</span></td><td>命中"曝光" + "媒体"</td><td>赵丽颖</td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
+</table>
+</div>
+<div class="tab-content" id="alert-tab-opportunity">
+<div class="filters">
+<select class="filter-select"><option>最近7天</option><option>今天</option><option>最近30天</option></select>
+<select class="filter-select"><option>商机预警</option><option>高意向</option><option>催发货</option><option>优惠咨询</option></select>
+<select class="filter-select"><option>P3</option></select>
+<select class="filter-select"><option>全部状态</option><option>待跟进</option><option>已处理</option></select>
+</div>
+<table>
+<tr><th>时间</th><th>客户</th><th>商机类型</th><th>等级</th><th>触发原因</th><th>负责人</th><th>状态</th><th>操作</th></tr>
+<tr><td>04-20 20:58</td><td>王五</td><td><span class="tag tag-opportunity">商机预警</span></td><td><span class="tag tag-p3">P3</span></td><td>明确询价 + 催发货意图</td><td>张小花</td><td><span class="tag tag-done">已处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
+<tr><td>04-20 20:10</td><td>周八</td><td><span class="tag tag-opportunity">商机预警</span></td><td><span class="tag tag-p3">P3</span></td><td>连续追问优惠和库存</td><td>张小花</td><td><span class="tag tag-done">已处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
+<tr><td>04-20 19:42</td><td>韩梅梅</td><td><span class="tag tag-opportunity">商机预警</span></td><td><span class="tag tag-p3">P3</span></td><td>确认规格后主动询问下单方式</td><td>张小花</td><td><span class="tag tag-pending">待跟进</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
+</table>
+</div>
 </div>
 
 <!-- 页面2: 预警详情 -->
@@ -254,6 +290,22 @@ textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;
 <div class="config-row"><div><div class="c-label">P3 商机阈值</div><div class="c-desc">意图分 + 行为信号</div></div><input type="number" value="65"/></div>
 <div class="config-row"><div><div class="c-label">同客户同类型去重窗口（分钟）</div><div class="c-desc">避免重复提醒轰炸</div></div><input type="number" value="15"/></div>
 </div>
+<div class="detail-card">
+<h3>👥 生效员工 / 部门</h3>
+<div class="config-row"><div><div class="c-label">生效范围</div><div class="c-desc">一期默认不全量生效，先灰度到指定团队</div></div><span class="tag tag-rule">指定员工 / 部门</span></div>
+<div style="padding:12px 0;border-bottom:1px solid #f2f3f5">
+<div style="font-size:13px;font-weight:600;margin-bottom:10px">已选员工</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<span class="tag tag-rule">王小明</span><span class="tag tag-rule">赵丽颖</span><span class="tag tag-rule">张小花</span><button class="btn btn-outline btn-sm">+ 添加员工</button>
+</div>
+</div>
+<div style="padding:12px 0">
+<div style="font-size:13px;font-weight:600;margin-bottom:10px">已选部门</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<span class="tag tag-ai">售后组</span><span class="tag tag-ai">活动运营组</span><button class="btn btn-outline btn-sm">+ 添加部门</button>
+</div>
+</div>
+</div>
 </div>
 <div>
 <div class="detail-card" style="margin-bottom:20px">
@@ -285,21 +337,29 @@ textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;
 <div class="detail-grid">
 <div>
 <div class="detail-card" style="margin-bottom:20px">
-<h3>🔔 分级提醒策略</h3>
-<div class="config-row"><div><div class="c-label">P1 立即提醒</div><div class="c-desc">10 秒内推送到负责人 + 主管</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">P2 汇总提醒</div><div class="c-desc">每 15 分钟推送一次</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">P3 小时提醒</div><div class="c-desc">商机类每小时汇总一次</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">待处理超时自动升级</div><div class="c-desc">超 5 分钟自动提醒主管</div></div><span class="toggle on"></span></div>
+<h3>👤 接待通知</h3>
+<div class="config-row"><div><div class="c-label">P1 接待通知</div><div class="c-desc">10 秒内推送给当前接待员工</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">P2 接待通知</div><div class="c-desc">每 15 分钟汇总一次，避免频繁打扰</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">P3 接待通知</div><div class="c-desc">商机类每小时汇总一次</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">接待对象</div><div class="c-desc">当前接待员工 / 指定客服组</div></div><span class="tag tag-rule">当前接待员工</span></div>
 </div>
 <div class="detail-card">
-<h3>📨 提醒模板</h3>
-<div style="font-size:12px;color:var(--sub);margin-bottom:8px">P1 模板</div>
-<textarea>【P1风险预警】客户{customer_name}触发{event_type}，建议{suggestion}，请{owner_name}在5分钟内处理。</textarea>
-<div style="font-size:12px;color:var(--sub);margin:10px 0 8px">P2 模板</div>
-<textarea>【P2敏感预警】客户{customer_name}命中{trigger_text}，请在15分钟内跟进并更新处理状态。</textarea>
+<h3>📨 接待侧提醒模板</h3>
+<div style="font-size:12px;color:var(--sub);margin-bottom:8px">P1 / P2 模板</div>
+<textarea>【{event_level}{event_type}】客户{customer_name}触发预警，原因：{trigger_reason}。建议动作：{suggestion}，请{owner_name}尽快处理。</textarea>
+<div style="font-size:12px;color:var(--sub);margin:10px 0 8px">P3 商机模板</div>
+<textarea>【P3商机提醒】客户{customer_name}出现高意向信号：{trigger_text}。建议优先跟进，推动转化。</textarea>
 </div>
 </div>
 <div>
+<div class="detail-card" style="margin-bottom:20px">
+<h3>🧭 监管通知</h3>
+<div class="config-row"><div><div class="c-label">监管通知开关</div><div class="c-desc">主管 / 运营兜底监控，默认关闭</div></div><span class="toggle"></span></div>
+<div class="config-row"><div><div class="c-label">触发条件</div><div class="c-desc">仅 P1 / P2 生效，商机默认不推监管侧</div></div><span class="tag tag-rule">P1 / P2</span></div>
+<div class="config-row"><div><div class="c-label">监管对象</div><div class="c-desc">员工主管 / 指定运营 / 自定义通知人</div></div><span class="tag tag-rule">员工主管</span></div>
+<div class="config-row"><div><div class="c-label">延迟发送</div><div class="c-desc">接待侧 5 分钟内未处理，再推送监管侧</div></div><span class="toggle on"></span></div>
+<div class="config-row"><div><div class="c-label">待处理超时自动升级</div><div class="c-desc">超 5 分钟自动提醒主管</div></div><span class="toggle on"></span></div>
+</div>
 <div class="detail-card" style="margin-bottom:20px">
 <h3>🛣️ 路由与免打扰</h3>
 <div class="config-row"><div><div class="c-label">默认路由</div><div class="c-desc">按客户归属员工 → 组长 → 店长</div></div><span class="tag tag-rule">已启用</span></div>
@@ -309,10 +369,10 @@ textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;
 <div class="detail-card">
 <h3>📌 最近提醒日志</h3>
 <table>
-<tr><th>时间</th><th>等级</th><th>对象</th><th>状态</th></tr>
-<tr><td>20:32:10</td><td><span class="tag tag-p1">P1</span></td><td>王小明 / 客服组长</td><td><span class="tag tag-done">已送达</span></td></tr>
-<tr><td>20:30:00</td><td><span class="tag tag-p2">P2</span></td><td>赵丽颖</td><td><span class="tag tag-done">已送达</span></td></tr>
-<tr><td>20:00:00</td><td><span class="tag tag-p3">P3</span></td><td>张小花</td><td><span class="tag tag-done">已送达</span></td></tr>
+<tr><th>时间</th><th>等级</th><th>通知类型</th><th>对象</th><th>状态</th></tr>
+<tr><td>20:32:10</td><td><span class="tag tag-p1">P1</span></td><td>接待通知</td><td>王小明</td><td><span class="tag tag-done">已送达</span></td></tr>
+<tr><td>20:37:20</td><td><span class="tag tag-p1">P1</span></td><td>监管通知</td><td>客服组长</td><td><span class="tag tag-done">已送达</span></td></tr>
+<tr><td>20:30:00</td><td><span class="tag tag-p2">P2</span></td><td>接待通知</td><td>赵丽颖</td><td><span class="tag tag-done">已送达</span></td></tr>
 </table>
 <div class="action-area" style="margin-top:16px">
 <button class="btn btn-outline">预览提醒</button>
@@ -389,7 +449,16 @@ textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;
 <div class="detail-card">
 <h3 style="margin-bottom:20px">超时未回复规则</h3>
 <div class="config-row"><div><div class="c-label">超时阈值</div><div class="c-desc">客户发送消息后，员工在此时间内未回复则标记超时</div></div><div><input type="number" value="5" min="1" max="60"/> 分钟</div></div>
-<div class="config-row"><div><div class="c-label">工作时间段</div><div class="c-desc">仅在工作时间内检测超时，非工作时间不计</div></div><div><input type="text" value="09:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/> - <input type="text" value="22:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/></div></div>
+<div style="padding:12px 0;border-bottom:1px solid #f2f3f5">
+<div style="font-size:13px;font-weight:600;margin-bottom:12px">工作日时段配置</div>
+<div class="config-row"><div><div class="c-label">时段 1</div><div class="c-desc">上午接待高峰</div></div><div><input type="text" value="09:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/> - <input type="text" value="12:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/></div></div>
+<div class="config-row"><div><div class="c-label">时段 2</div><div class="c-desc">下午接待高峰</div></div><div><input type="text" value="14:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/> - <input type="text" value="18:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/></div></div>
+<div class="config-row"><div><div class="c-label">时段 3</div><div class="c-desc">晚间值班时段</div></div><div><input type="text" value="19:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/> - <input type="text" value="22:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/></div></div>
+</div>
+<div style="padding:12px 0;border-bottom:1px solid #f2f3f5">
+<div style="font-size:13px;font-weight:600;margin-bottom:12px">周末时段配置</div>
+<div class="config-row"><div><div class="c-label">周末营业时段</div><div class="c-desc">未配置则默认不检测</div></div><div><input type="text" value="10:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/> - <input type="text" value="18:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/></div></div>
+</div>
 <div class="config-row"><div><div class="c-label">排除纯表情包消息</div><div class="c-desc">客户仅发送表情包/贴图时不触发超时检测</div></div><div><span class="toggle on" onclick="this.classList.toggle('on')"></span></div></div>
 <div class="config-row"><div><div class="c-label">排除纯图片消息</div><div class="c-desc">客户仅发送图片（无文字）时不触发超时检测</div></div><div><span class="toggle" onclick="this.classList.toggle('on')"></span></div></div>
 <div style="margin-top:20px"><button class="btn btn-primary">保存配置</button></div>
