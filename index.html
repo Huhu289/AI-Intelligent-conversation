@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>企微助手 - 智能会话预警中心（PRD补全版）</title>
+  <title>企微助手 - 智能会话预警中心（v8 首次回复处理版）</title>
   <style>
     :root {
       --dark: #202033;
@@ -248,8 +248,8 @@
       position: fixed;
       top: 0;
       right: 0;
-      width: 680px;
-      max-width: calc(100vw - 80px);
+      width: 820px;
+      max-width: calc(100vw - 64px);
       height: 100vh;
       background: #fff;
       box-shadow: -8px 0 24px rgba(0,0,0,.12);
@@ -286,13 +286,25 @@
     .info-grid { display: grid; grid-template-columns: 88px 1fr; gap: 8px 12px; font-size: 13px; line-height: 1.7; }
     .info-label { color: #999; }
     .quote-box { background: #FFF8F7; border: 1px solid #FFD4D1; border-radius: 4px; padding: 12px; line-height: 1.7; color: #333; }
-    .settings-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .settings-row { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
     .settings-row:last-child { border-bottom: 0; }
     .settings-label { color: #333; font-weight: 500; padding-top: 4px; }
     .settings-control { display: grid; gap: 10px; }
     .keyword-list { display: flex; gap: 8px; flex-wrap: wrap; }
     .keyword-chip { height: 26px; line-height: 24px; padding: 0 8px; border: 1px solid #D9E8FF; color: var(--brand); background: #F5F9FF; border-radius: 2px; font-size: 12px; }
     .mini-input { width: 88px; min-width: 88px; }
+    .rule-group { border:1px solid var(--line); background:#fff; border-radius:4px; padding:14px; }
+    .rule-group-title { font-weight:500; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+    .rule-group-desc { color:#999; font-size:12px; line-height:1.6; margin-bottom:12px; }
+    .textarea-input { min-height:92px; border:1px solid var(--line); border-radius:2px; padding:10px; resize:vertical; font-size:13px; line-height:1.7; }
+    .threshold-row { display:grid; grid-template-columns: 116px 96px 1fr; gap:8px; align-items:center; margin-bottom:10px; }
+    .threshold-row label { color:#646a73; font-size:13px; white-space:nowrap; }
+    .keyword-textarea-row { display:grid; grid-template-columns: 104px 1fr; gap:10px; align-items:start; margin-top:10px; }
+    .keyword-textarea-row label { color:#646a73; font-size:13px; padding-top:8px; white-space:nowrap; }
+    .hint { color:#999; font-size:12px; line-height:1.6; }
+    .object-cell { line-height:1.6; }
+    .object-sub { color:#999; font-size:12px; }
+    .score-cell { color:#646a73; font-variant-numeric: tabular-nums; }
 
     @media (max-width: 1100px) {
       .app { grid-template-columns: 200px 120px minmax(760px, 1fr); }
@@ -365,7 +377,6 @@
               <div class="tab" data-type="opportunity">商机</div>
             </div>
             <div class="right-tools">
-              <span class="help">一期先做渠道来源展示与筛选，不做多渠道接入设置/状态检测</span>
               <button class="btn primary" onclick="openSettingsDrawer()">预警设置</button>
             </div>
           </div>
@@ -389,26 +400,27 @@
           <table>
             <thead>
               <tr>
-                <th style="width:136px;">触发时间</th>
-                <th style="width:84px;">渠道来源</th>
-                <th style="width:84px;">客户名称</th>
-                <th style="width:84px;">事件类型</th>
-                <th style="width:64px;">等级</th>
-                <th style="width:220px;">触发原因</th>
-                <th style="width:88px;">触发来源</th>
-                <th style="width:84px;">负责人</th>
-                <th style="width:104px;">命中标签</th>
-                <th style="width:76px;">是否误报</th>
-                <th style="width:84px;">处理状态</th>
-                <th style="width:88px;">操作</th>
+                <th style="width:132px;">触发时间</th>
+                <th style="width:132px;">预警对象</th>
+                <th style="width:112px;">事件</th>
+                <th style="width:216px;">触发原因</th>
+                <th style="width:126px;">命中标签</th>
+                <th style="width:92px;">情绪分</th>
+                <th style="width:92px;">意向分</th>
+                <th style="width:90px;">触发来源</th>
+                <th style="width:80px;">负责人</th>
+                <th style="width:88px;">状态</th>
+                <th style="width:150px;">首次回复时间</th>
+                <th style="width:72px;">误报</th>
+                <th style="width:72px;">操作</th>
               </tr>
             </thead>
             <tbody>
-              <tr data-type="risk"><td>2026-04-27 21:02</td><td>企微会话</td><td>张女士</td><td>风险预警</td><td><span class="tag red">P1</span></td><td>投诉 + 退款 + 愤怒情绪</td><td><span class="source fast">⚡ 快通道</span></td><td>李晴</td><td>情绪风险</td><td>否</td><td>待处理</td><td><a class="link" onclick="openDetailDrawer('process','fast','张女士','风险预警','待处理','企微会话')">处理</a></td></tr>
-              <tr data-type="risk"><td>2026-04-27 21:00</td><td>企微会话</td><td>刘先生</td><td>转人工诉求</td><td><span class="tag red">P1</span></td><td>质疑机器人且明确要求转人工</td><td><span class="source fast">⚡ 快通道</span></td><td>机器人接待</td><td>转人工诉求</td><td>否</td><td>待处理</td><td><a class="link" onclick="openDetailDrawer('process','fast','刘先生','转人工诉求','待处理','企微会话')">处理</a></td></tr>
-              <tr data-type="opportunity"><td>2026-04-27 20:58</td><td>有赞商城客服</td><td>王先生</td><td>商机预警</td><td><span class="tag green">P3</span></td><td>明确询价 + 催发货</td><td><span class="source slow">🔍 慢通道</span></td><td>周宁</td><td>高意向</td><td>否</td><td>已处理</td><td><a class="link" onclick="openDetailDrawer('view','slow','王先生','商机预警','已处理','有赞商城客服')">详情</a></td></tr>
-              <tr data-type="risk"><td>2026-04-27 20:53</td><td>抖音</td><td>陈女士</td><td>敏感预警</td><td><span class="tag orange">P2</span></td><td>命中差评 / 平台投诉</td><td><span class="source fast">⚡ 快通道</span></td><td>王超</td><td>敏感投诉</td><td>是</td><td>误报</td><td><a class="link" onclick="openDetailDrawer('view','fast','陈女士','敏感预警','误报','抖音')">详情</a></td></tr>
-              <tr data-type="risk"><td>2026-04-27 20:47</td><td>小红书</td><td>赵女士</td><td>风险预警</td><td><span class="tag orange">P2</span></td><td>连续追问 3 次未回复</td><td><span class="source slow">🔍 慢通道</span></td><td>李晴</td><td>强消极</td><td>否</td><td>已忽略</td><td><a class="link" onclick="openDetailDrawer('view','slow','赵女士','风险预警','已忽略','小红书')">详情</a></td></tr>
+              <tr data-type="risk"><td>2026-04-27 21:02</td><td class="object-cell">张女士<div class="object-sub">企微会话</div></td><td><span class="tag red">P1</span><br/>风险预警</td><td>客户要求退款并威胁12315投诉</td><td><span class="tag red">维权升级</span><span class="tag">退款诉求</span></td><td class="score-cell">—</td><td class="score-cell">—</td><td><span class="source fast">⚡ 快通道</span></td><td>李晴</td><td>已处理</td><td class="score-cell">2026-04-27 21:04:12</td><td>否</td><td><a class="link" onclick="openDetailDrawer('view','fast','张女士','风险预警','已处理','企微会话')">详情</a></td></tr>
+              <tr data-type="risk"><td>2026-04-27 21:00</td><td class="object-cell">刘先生<div class="object-sub">企微会话</div></td><td><span class="tag red">P1</span><br/>转人工诉求</td><td>客户质疑机器人且明确要求转人工</td><td><span class="tag red">质疑机器人</span><span class="tag">要求转人工</span></td><td class="score-cell">—</td><td class="score-cell">—</td><td><span class="source fast">⚡ 快通道</span></td><td>机器人接待</td><td>已处理</td><td class="score-cell">2026-04-27 21:02:00</td><td>否</td><td><a class="link" onclick="openDetailDrawer('view','fast','刘先生','转人工诉求','已处理','企微会话')">详情</a></td></tr>
+              <tr data-type="opportunity"><td>2026-04-27 20:58</td><td class="object-cell">王先生<div class="object-sub">有赞商城客服</div></td><td><span class="tag green">P3</span><br/>商机预警</td><td>客户已确认库存，主动询问发货和优惠</td><td><span class="tag green">购买意向</span><span class="tag green">询问优惠</span></td><td class="score-cell">0.18</td><td class="score-cell">0.86</td><td><span class="source slow">🔍 慢通道</span></td><td>周宁</td><td>已处理</td><td class="score-cell">2026-04-27 21:06:18</td><td>否</td><td><a class="link" onclick="openDetailDrawer('view','slow','王先生','商机预警','已处理','有赞商城客服')">详情</a></td></tr>
+              <tr data-type="risk"><td>2026-04-27 20:53</td><td class="object-cell">陈女士<div class="object-sub">抖音</div></td><td><span class="tag orange">P2</span><br/>敏感预警</td><td>客户表达差评和平台投诉倾向</td><td><span class="tag orange">平台投诉</span><span class="tag">差评</span></td><td class="score-cell">—</td><td class="score-cell">—</td><td><span class="source fast">⚡ 快通道</span></td><td>王超</td><td>误报</td><td class="score-cell">2026-04-27 20:59:32</td><td>是</td><td><a class="link" onclick="openDetailDrawer('view','fast','陈女士','敏感预警','误报','抖音')">详情</a></td></tr>
+              <tr data-type="risk"><td>2026-04-27 20:47</td><td class="object-cell">赵女士<div class="object-sub">小红书</div></td><td><span class="tag orange">P2</span><br/>风险预警</td><td>客户因长时间未回复连续追问表达不满</td><td><span class="tag orange">服务不满</span><span class="tag">持续追问</span></td><td class="score-cell">0.72</td><td class="score-cell">0.12</td><td><span class="source slow">🔍 慢通道</span></td><td>李晴</td><td>已忽略</td><td class="score-cell">2026-04-27 20:55:10</td><td>否</td><td><a class="link" onclick="openDetailDrawer('view','slow','赵女士','风险预警','已忽略','小红书')">详情</a></td></tr>
             </tbody>
           </table>
           <div class="pagination"><span>共 538 条，每页 10 条</span><span class="page-num">‹</span><span class="page-num active">1</span><span class="page-num">2</span><span class="page-num">3</span><span class="page-num">4</span><span>…</span><span class="page-num">54</span><span class="page-num">›</span></div>
@@ -443,35 +455,19 @@
             </div>
             <div class="form-grid">
               <div class="field">
-                <label>触发方式：</label>
-                <div class="check-row">
-                  <label><input type="checkbox" checked /> 关键词命中（快通道）</label>
-                  <label><input type="checkbox" checked /> AI智能分析（慢通道）</label>
-                </div>
+                <label>关键词命中（快通道）：</label>
+                <div class="check-row"><label><input type="checkbox" checked /> 开启关键词命中</label></div>
+                <div class="radio-row" style="margin-top:10px;"><label><input type="radio" name="keywordSource" checked /> 自定义关键词</label><label><input type="radio" name="keywordSource" /> 同步数字员工关键词</label></div>
               </div>
               <div class="field">
-                <label>关键词来源：</label>
-                <div class="radio-row">
-                  <label><input type="radio" name="keywordSource" checked /> 自定义关键词</label>
-                  <label><input type="radio" name="keywordSource" /> 同步数字员工关键词</label>
-                </div>
+                <label>AI智能分析（慢通道）：</label>
+                <div class="check-row"><label><input type="checkbox" checked /> 开启AI智能分析</label></div>
+                <div class="hint" style="margin-top:8px;">情绪分、高意向分阈值只和AI智能分析关联。</div>
               </div>
-              <div class="field"><label>P1 生效关键词：</label><textarea>投诉
-举报
-12315
-曝光
-维权
-骗子
-退款
-媒体曝光</textarea></div>
-              <div class="field"><label>P2 生效关键词：</label><textarea>退货
-差评
-平台投诉
-质量问题
-一直没回复
-处理太慢</textarea></div>
-              <div class="field"><label>AI 情绪分阈值：</label><input class="input" value="0.70" /></div>
-              <div class="field"><label>AI 高意向阈值：</label><input class="input" value="0.65" /></div>
+              <div class="field"><label>高风险关键词：</label><textarea>投诉、举报、12315、315、消协、起诉、律师、法院、曝光、平台投诉、差评、退款、退钱、赔偿、假货、骗子、再也不买</textarea></div>
+              <div class="field"><label>高意向关键词：</label><textarea>下单、购买、价格、多少钱、优惠、优惠券、有货、现货、库存、今天能发吗、什么时候发货、规格、尺码、批发、团购、复购</textarea></div>
+              <div class="field"><label>情绪分阈值：</label><input class="input" value="0.70" /><div class="hint">分值区间0-1.0，值越大情绪越强烈</div></div>
+              <div class="field"><label>高意向阈值：</label><input class="input" value="0.65" /><div class="hint">分值区间0-1.0，值越大意向越强烈</div></div>
               <div class="field">
                 <label>生效范围：</label>
                 <div class="radio-row">
@@ -570,8 +566,13 @@
               <div class="info-label">渠道来源</div><div id="drawerChannel">企微会话</div>
               <div class="info-label">负责人</div><div>李晴</div>
               <div class="info-label">触发时间</div><div>2026-04-27 21:02:16</div>
+              <div class="info-label">情绪分</div><div>0.92（慢通道生成；快通道可为空）</div>
+              <div class="info-label">意向分</div><div>0.08（慢通道生成；快通道可为空）</div>
               <div class="info-label">会话类型</div><div>单聊</div>
               <div class="info-label">提醒状态</div><div>接待通知：已发送 ✓ ｜ 监管通知：P1 已发送 ✓ ｜ 电话提醒：已触发</div>
+              <div class="info-label">处理依据</div><div>预警生成后员工首次回复客户，系统自动认定已处理</div>
+              <div class="info-label">首次回复时间</div><div>2026-04-27 21:02:00</div>
+              <div class="info-label">处理人</div><div>李晴</div>
             </div>
           </div>
 
@@ -597,6 +598,7 @@
           <div class="detail-block">
             <div class="detail-block-title">命中标签</div>
             <span class="tag red">维权升级</span><span class="tag red">退款诉求</span><span class="tag orange">服务不满</span><span class="tag">情绪风险_愤怒</span>
+            <div class="hint" style="margin-top:10px;">命中标签用于结构化归类、筛选和自动打标；触发原因用于解释本条记录为什么触发。</div>
           </div>
 
           <div class="detail-block">
@@ -611,18 +613,17 @@
           <div class="detail-block">
             <div class="detail-block-title">处理记录 / 反馈闭环</div>
             <div class="form-grid" style="grid-template-columns:1fr;">
-              <div class="field"><label>处理状态：</label><select><option>待处理</option><option>已处理</option><option>已忽略</option><option>误报</option></select></div>
-              <div class="field"><label>反馈标注：</label><select><option>有效</option><option>误报</option><option>待优化</option></select></div>
-              <div class="field"><label>处理备注：</label><textarea placeholder="请输入处理结论、误报原因或优化建议"></textarea></div>
+              <div class="field"><label>处理状态：</label><select><option>已处理（员工首次回复后自动更新）</option><option>已忽略</option><option>误报</option></select></div>
+              <div class="field"><label>首次回复时间：</label><input value="2026-04-27 21:02:00" disabled /></div>
+              <div class="field"><label>手动修改：</label><select><option>不修改</option><option>改为已忽略</option><option>改为误报</option></select></div>
+              <div class="field"><label>处理备注：</label><textarea placeholder="请输入忽略原因、误报原因或补充说明"></textarea></div>
             </div>
           </div>
         </div>
         <div class="drawer-footer">
-          <button class="btn" onclick="toast('已标记为待优化（示意）')">待优化</button>
-          <button class="btn" onclick="toast('已标记为有效（示意）')">标记有效</button>
-          <button class="btn" onclick="toast('已标记为已忽略（示意）')">标记已忽略</button>
-          <button class="btn" onclick="toast('已标记为误报（示意）')">标记误报</button>
-          <button class="btn primary" onclick="toast('已标记为已处理（示意）')">标记已处理</button>
+          <button class="btn" onclick="toast('已修改为已忽略（示意）')">改为已忽略</button>
+          <button class="btn" onclick="toast('已修改为误报（示意）')">改为误报</button>
+          <button class="btn primary" onclick="toast('已保存处理备注（示意）')">保存</button>
         </div>
       </aside>
 
@@ -646,16 +647,21 @@
                 </div>
               </div>
               <div class="settings-row">
-                <div class="settings-label">触发方式</div>
+                <div class="settings-label">预警设置</div>
                 <div class="settings-control">
-                  <div class="check-row">
-                    <label><input type="checkbox" checked /> 关键词命中（快通道，秒级）</label>
-                    <label><input type="checkbox" checked /> AI智能分析（慢通道，分钟级）</label>
+                  <div class="rule-group">
+                    <div class="rule-group-title"><label><input type="checkbox" checked /> 关键词命中</label><span class="source fast">⚡ 快通道，秒级</span></div>
+                    <div class="rule-group-desc">仅判断当前客户消息是否命中配置关键词，不调用模型；优先用于投诉维权、退款、差评、高意向购买等强信号。</div>
+                    <div class="radio-row"><label><input type="radio" name="keywordSource2" checked /> 自定义关键词</label><label><input type="radio" name="keywordSource2" /> 同步数字员工关键词</label></div>
+                    <div class="keyword-textarea-row"><label>高风险关键词：</label><textarea class="textarea-input">投诉、举报、12315、315、消协、起诉、律师、法院、曝光、媒体曝光、平台投诉、差评、一星、退款、退钱、赔偿、假货、次品、瑕疵、骗子、欺诈、黑店、再也不买、拉黑</textarea></div>
+                    <div class="keyword-textarea-row"><label>高意向关键词：</label><textarea class="textarea-input">下单、购买、怎么买、链接、价格、多少钱、优惠、优惠券、活动、折扣、满减、有货、现货、库存、今天能发吗、什么时候发货、包邮、规格、尺码、颜色、适合、对比、批发、团购、复购</textarea></div>
                   </div>
-                  <div class="radio-row"><label><input type="radio" name="keywordSource2" checked /> 自定义关键词</label><label><input type="radio" name="keywordSource2" /> 同步数字员工关键词</label></div>
-                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>P1 生效关键词：</label><input class="input" style="width:260px;" value="投诉、举报、12315、曝光、维权、退款" /></div></div>
-                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>P2 生效关键词：</label><input class="input" style="width:260px;" value="退货、差评、平台投诉、质量问题、处理太慢" /></div></div>
-                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>情绪分阈值：</label><input class="input mini-input" value="0.70" /></div><div class="filter-field"><label>高意向阈值：</label><input class="input mini-input" value="0.65" /></div></div>
+                  <div class="rule-group">
+                    <div class="rule-group-title"><label><input type="checkbox" checked /> AI智能分析</label><span class="source slow">🔍 慢通道，分钟级</span></div>
+                    <div class="rule-group-desc">情绪分阈值、高意向阈值均归属于 AI 智能分析；未开启 AI 时不生效。慢通道生成的预警记录需写入情绪分、意向分。</div>
+                    <div class="threshold-row"><label>情绪分阈值：</label><input class="input mini-input" value="0.70" /><span class="hint">分值区间0-1.0，值越大情绪越强烈</span></div>
+                    <div class="threshold-row"><label>高意向阈值：</label><input class="input mini-input" value="0.65" /><span class="hint">分值区间0-1.0，值越大意向越强烈</span></div>
+                  </div>
                 </div>
               </div>
               <div class="settings-row">
@@ -680,6 +686,8 @@
                 <div class="settings-control">
                   <div class="switch-row"><div><div class="switch-title">企微工作提醒</div><div class="switch-desc">命中预警时推给当前接待员工</div></div><div class="switch on"></div></div>
                   <div class="radio-row"><label><input type="radio" name="reception" checked /> 当前接待员工</label><label><input type="radio" name="reception" /> 指定客服组</label></div>
+                  <select class="select" style="width:260px;"><option>请选择客服组</option><option>售前客服组</option><option>售后客服组</option><option>客销一组</option><option>客销二组</option></select>
+                  <div class="hint">选择「指定客服组」后，将通知该客服组内成员；支持后续按客服组排班/在线状态扩展。</div>
                   <div class="check-row"><label><input type="checkbox" checked /> P1电话提醒</label><label><input type="checkbox" /> P2电话提醒</label></div>
                 </div>
               </div>
