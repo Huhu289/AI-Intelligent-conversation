@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>企微助手 - 智能会话预警中心（PRD补全版）</title>
+  <style>
+    :root {
+      --dark: #202033;
+      --brand: #155BD4;
+      --brand-weak: #E9F3FE;
+      --bg: #F5F7FA;
+      --panel: #fff;
+      --line: #E5E6EB;
+      --text: #333;
+      --sub: #999;
+      --danger: #D41F15;
+      --warn: #ED6A18;
+      --success: #11AD26;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 14px;
+    }
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 200px 120px 1fr;
+    }
+
+    /* 左侧：一级 + 二级，整体 200px 深色背景 */
+    .dark-nav {
+      width: 200px;
+      background: var(--dark);
+      color: rgba(255,255,255,.72);
+      padding: 20px 8px 10px;
+      overflow-y: auto;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      margin: 4px auto 22px;
+      background: #fff;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      box-shadow: 0 0 0 4px rgba(255,255,255,.06);
+    }
+    .primary-block { margin-bottom: 18px; }
+    .primary-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 28px;
+      padding: 0 8px;
+      color: #fff;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .primary-title .icon {
+      width: 16px;
+      text-align: center;
+      color: rgba(255,255,255,.86);
+      font-size: 14px;
+    }
+    .secondary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .secondary-item {
+      border: 0;
+      background: transparent;
+      color: rgba(255,255,255,.62);
+      text-align: left;
+      min-width: 0;
+      height: 28px;
+      line-height: 28px;
+      padding: 0 8px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .secondary-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .secondary-item.active { background: var(--brand); color: #fff; }
+    .bottom-card {
+      margin-top: 10px;
+      height: 28px;
+      line-height: 28px;
+      background: rgba(255,255,255,.10);
+      border-radius: 4px;
+      color: rgba(255,255,255,.68);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    /* 中间：三级菜单，120px 白底 */
+    .third-nav {
+      width: 120px;
+      background: #fff;
+      border-right: 1px solid var(--line);
+      padding: 16px 0;
+      overflow-y: auto;
+    }
+    .third-item {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #333;
+      height: 40px;
+      line-height: 40px;
+      padding: 0 14px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .third-item:hover { background: #F7F8FA; }
+    .third-item.active { background: var(--brand-weak); color: var(--brand); font-weight: 500; }
+
+    /* 右侧页面内容 */
+    .main { min-width: 0; padding: 20px 24px; background: #F5F7FA; }
+    .topbar { height: 40px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .breadcrumb { color: #8A8F99; font-size: 13px; }
+    .breadcrumb b { color: #333; font-weight: 500; }
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 8px 14px;
+      color: #333;
+      box-shadow: 0 1px 4px rgba(0,0,0,.03);
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    .card { background: #fff; border-radius: 4px; padding: 20px; margin-bottom: 16px; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .section-head h3 { margin: 0; font-size: 16px; font-weight: 500; }
+    .section-head span { color: var(--sub); font-size: 12px; }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .left-tools, .right-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn { border: 1px solid var(--line); background: #fff; color: #333; height: 32px; padding: 0 14px; border-radius: 2px; cursor: pointer; font-size: 13px; }
+    .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .btn.danger { color: var(--brand); border-color: var(--line); }
+    .input, .select {
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 0 10px;
+      background: #fff;
+      color: #333;
+      min-width: 180px;
+      font-size: 13px;
+    }
+    .filter-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    .filter-field { display: flex; align-items: center; gap: 8px; }
+    .filter-field label { color: #646A73; font-size: 13px; white-space: nowrap; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+    .metric-card { background: #fff; border-radius: 4px; padding: 20px; }
+    .metric-label { color: #646A73; font-size: 13px; margin-bottom: 10px; }
+    .metric-value { display: flex; align-items: baseline; gap: 8px; font-size: 30px; font-weight: 600; color: #333; }
+    .metric-unit { font-size: 13px; font-weight: 400; color: #999; }
+    .metric-trend { margin-top: 8px; color: #999; font-size: 12px; }
+    .up { color: var(--danger); }
+    .down { color: var(--success); }
+
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+    .tab { padding: 0 18px 12px; border-bottom: 2px solid transparent; color: #333; cursor: pointer; }
+    .tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 500; }
+
+    table { width: 100%; border-collapse: collapse; background: #fff; table-layout: fixed; }
+    th, td { border-bottom: 1px solid var(--line); padding: 13px 12px; text-align: left; vertical-align: middle; font-size: 13px; line-height: 1.5; word-break: break-word; }
+    th { background: #F7F8FA; color: #333; font-weight: 500; }
+    tr:hover td { background: #FAFCFF; }
+    .link { color: var(--brand); cursor: pointer; margin-right: 10px; text-decoration: none; }
+    .tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 2px; border: 1px solid #D9E8FF; color: var(--brand); background: #F5F9FF; font-size: 12px; margin-right: 6px; }
+    .tag.red { border-color: #FFD4D1; color: var(--danger); background: #FFF3F2; }
+    .tag.orange { border-color: #FFE1C2; color: var(--warn); background: #FFF7ED; }
+    .tag.green { border-color: #CDEFD2; color: var(--success); background: #F1FFF3; }
+    .source { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .source.fast { color: var(--warn); }
+    .source.slow { color: var(--brand); }
+    .tabs-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom: 16px; }
+    .tabs-row .tabs { margin-bottom:0; }
+    .tabs-row .right-tools { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .channel-badge { display:inline-flex; align-items:center; gap:6px; color:#646a73; white-space:nowrap; }
+    .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding-top: 14px; color: #646a73; font-size: 13px; }
+    .page-num { min-width: 28px; height: 28px; border: 1px solid var(--line); background: #fff; text-align: center; line-height: 26px; border-radius: 2px; }
+    .page-num.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+    .form-section { display: none; }
+    .form-section.active { display: block; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .field { background: #FAFAFA; padding: 14px; border-radius: 4px; }
+    .field label { display: block; margin-bottom: 8px; color: #646a73; }
+    .field input, .field textarea, .field select { width: 100%; border: 1px solid var(--line); border-radius: 2px; padding: 8px 10px; font-size: 13px; background: #fff; }
+    .field textarea { min-height: 88px; resize: vertical; }
+    .switch-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .switch-row:last-child { border-bottom: 0; }
+    .switch-title { font-weight: 500; margin-bottom: 4px; }
+    .switch-desc { color: #999; font-size: 12px; }
+    .switch { width: 42px; height: 24px; background: #C9CDD4; border-radius: 999px; position: relative; cursor: pointer; flex-shrink: 0; }
+    .switch::after { content: ""; position: absolute; width: 20px; height: 20px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: .18s; }
+    .switch.on { background: var(--brand); }
+    .switch.on::after { left: 20px; }
+    .check-row, .radio-row { display: flex; gap: 18px; flex-wrap: wrap; color: #333; }
+    .check-row label, .radio-row label { display: inline-flex; align-items: center; gap: 6px; margin: 0; color: #333; }
+
+    .detail-layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
+    .timeline { display: grid; gap: 12px; }
+    .event { display: grid; grid-template-columns: 88px 1fr; gap: 12px; align-items: start; }
+    .event .time { color: #999; font-size: 12px; padding-top: 5px; }
+    .event .bubble { padding: 12px 14px; background: #FAFAFA; border: 1px solid var(--line); border-radius: 4px; line-height: 1.7; }
+    .suggest-list { margin: 0; padding-left: 18px; color: #333; line-height: 1.9; }
+    .empty { padding: 56px 20px; text-align: center; color: #999; background: #fff; border-radius: 4px; }
+
+
+
+    /* 右侧抽屉：详情 / 设置 */
+    .drawer-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: .18s ease;
+      z-index: 20;
+    }
+    .drawer-mask.show { opacity: 1; pointer-events: auto; }
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 680px;
+      max-width: calc(100vw - 80px);
+      height: 100vh;
+      background: #fff;
+      box-shadow: -8px 0 24px rgba(0,0,0,.12);
+      transform: translateX(100%);
+      transition: .22s ease;
+      z-index: 21;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer.show { transform: translateX(0); }
+    .drawer-header {
+      height: 56px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .drawer-header h3 { margin: 0; font-size: 16px; font-weight: 500; }
+    .drawer-close { border: 0; background: transparent; font-size: 22px; cursor: pointer; color: #999; }
+    .drawer-body { padding: 20px; overflow-y: auto; flex: 1; background: #F7F8FA; }
+    .drawer-footer {
+      border-top: 1px solid var(--line);
+      padding: 12px 20px;
+      background: #fff;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .detail-block { background: #fff; border-radius: 4px; padding: 16px; margin-bottom: 12px; }
+    .detail-block-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; }
+    .info-grid { display: grid; grid-template-columns: 88px 1fr; gap: 8px 12px; font-size: 13px; line-height: 1.7; }
+    .info-label { color: #999; }
+    .quote-box { background: #FFF8F7; border: 1px solid #FFD4D1; border-radius: 4px; padding: 12px; line-height: 1.7; color: #333; }
+    .settings-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .settings-row:last-child { border-bottom: 0; }
+    .settings-label { color: #333; font-weight: 500; padding-top: 4px; }
+    .settings-control { display: grid; gap: 10px; }
+    .keyword-list { display: flex; gap: 8px; flex-wrap: wrap; }
+    .keyword-chip { height: 26px; line-height: 24px; padding: 0 8px; border: 1px solid #D9E8FF; color: var(--brand); background: #F5F9FF; border-radius: 2px; font-size: 12px; }
+    .mini-input { width: 88px; min-width: 88px; }
+
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 200px 120px minmax(760px, 1fr); }
+      .metric-grid { grid-template-columns: 1fr; }
+      .detail-layout, .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="dark-nav" id="darkNav"><div class="avatar">☰</div></aside>
+    <aside class="third-nav" id="thirdNav"></aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="breadcrumb" id="breadcrumb">客户运营 / 会话存档 / <b>智能会话预警</b></div>
+        <div class="user-area"><span>● 智能助手</span><span>▣ 客服</span><span>刘龙名⌄</span></div>
+      </div>
+
+      <section class="page" id="page-query">
+        <div class="card">
+          <div class="section-head">
+            <h3>会话查询</h3>
+            <span>按客户、员工、关键词快速检索会话内容</span>
+          </div>
+          <div class="toolbar">
+            <div class="left-tools">
+              <input class="input" placeholder="搜索客户 / 员工 / 关键词" />
+              <select class="select"><option>全部员工</option><option>李晴</option><option>王超</option></select>
+              <select class="select"><option>近7天</option><option>今天</option><option>近30天</option></select>
+              <button class="btn primary">查询</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>会话时间</th><th>客户</th><th>员工</th><th>最近消息</th><th>命中标签</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>2026-04-27 10:21</td><td>张女士</td><td>李晴</td><td>再不处理我就去投诉了</td><td>风险 / 投诉</td><td><a class="link">查看会话</a></td></tr>
+              <tr><td>2026-04-27 09:48</td><td>王先生</td><td>周宁</td><td>今天能发货吗？多少钱？</td><td>商机 / 询价</td><td><a class="link">查看会话</a></td></tr>
+              <tr><td>2026-04-26 18:12</td><td>陈女士</td><td>王超</td><td>我要退款，体验太差了</td><td>敏感 / 退款</td><td><a class="link">查看会话</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 智能会话预警 = 预警记录列表页 + 设置抽屉：已按 PRD 合并 -->
+      <section class="page active" id="page-records">
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-label">今日预警数</div>
+            <div class="metric-value">326 <span class="metric-unit">条</span></div>
+            <div class="metric-trend">环比昨日 <span class="up">+12.8%</span></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">待处理</div>
+            <div class="metric-value" style="color:var(--warn)">72 <span class="metric-unit">条</span></div>
+            <div class="metric-trend">环比昨日 <span class="up">+8.4%</span></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">误报数</div>
+            <div class="metric-value">31 <span class="metric-unit">条</span></div>
+            <div class="metric-trend">环比昨日 <span class="down">-2.1%</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="tabs-row">
+            <div class="tabs" id="recordTabs">
+              <div class="tab active" data-type="all">全部</div>
+              <div class="tab" data-type="risk">风险与敏感</div>
+              <div class="tab" data-type="opportunity">商机</div>
+            </div>
+            <div class="right-tools">
+              <span class="help">一期先做渠道来源展示与筛选，不做多渠道接入设置/状态检测</span>
+              <button class="btn primary" onclick="openSettingsDrawer()">预警设置</button>
+            </div>
+          </div>
+
+          <div class="filter-row">
+            <div class="filter-field"><label>时间范围：</label><input class="input" style="min-width:132px;" value="2026-04-27" /><span class="muted">至</span><input class="input" style="min-width:132px;" value="2026-04-27" /></div>
+            <div class="filter-field"><label>渠道来源：</label><select class="select"><option>全部渠道</option><option>企微会话</option><option>有赞商城客服</option><option>淘宝客服</option><option>抖音</option><option>小红书</option><option>美团</option></select></div>
+            <div class="filter-field"><label>员工选择：</label><select class="select"><option>全部员工</option><option>李晴</option><option>王超</option><option>周宁</option></select></div>
+            <div class="filter-field"><label>事件类型：</label><select class="select"><option>全部类型</option><option>风险</option><option>敏感</option><option>转人工诉求</option><option>商机</option></select></div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-field"><label>等级：</label><select class="select"><option>全部等级</option><option>P1</option><option>P2</option><option>P3</option></select></div>
+            <div class="filter-field"><label>状态：</label><select class="select"><option>全部状态</option><option>待处理</option><option>已处理</option><option>误报</option><option>已忽略</option></select></div>
+            <div class="filter-field"><label>是否误报：</label><select class="select"><option>全部</option><option>是</option><option>否</option></select></div>
+            <div class="filter-field"><label>触发来源：</label><select class="select"><option>全部来源</option><option>⚡ 快通道</option><option>🔍 慢通道</option></select></div>
+            <input class="input" placeholder="搜索客户 / 触发原因" />
+            <button class="btn primary">筛选</button>
+            <button class="btn">重置筛选项</button>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width:136px;">触发时间</th>
+                <th style="width:84px;">渠道来源</th>
+                <th style="width:84px;">客户名称</th>
+                <th style="width:84px;">事件类型</th>
+                <th style="width:64px;">等级</th>
+                <th style="width:220px;">触发原因</th>
+                <th style="width:88px;">触发来源</th>
+                <th style="width:84px;">负责人</th>
+                <th style="width:104px;">命中标签</th>
+                <th style="width:76px;">是否误报</th>
+                <th style="width:84px;">处理状态</th>
+                <th style="width:88px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-type="risk"><td>2026-04-27 21:02</td><td>企微会话</td><td>张女士</td><td>风险预警</td><td><span class="tag red">P1</span></td><td>投诉 + 退款 + 愤怒情绪</td><td><span class="source fast">⚡ 快通道</span></td><td>李晴</td><td>情绪风险</td><td>否</td><td>待处理</td><td><a class="link" onclick="openDetailDrawer('process','fast','张女士','风险预警','待处理','企微会话')">处理</a></td></tr>
+              <tr data-type="risk"><td>2026-04-27 21:00</td><td>企微会话</td><td>刘先生</td><td>转人工诉求</td><td><span class="tag red">P1</span></td><td>质疑机器人且明确要求转人工</td><td><span class="source fast">⚡ 快通道</span></td><td>机器人接待</td><td>转人工诉求</td><td>否</td><td>待处理</td><td><a class="link" onclick="openDetailDrawer('process','fast','刘先生','转人工诉求','待处理','企微会话')">处理</a></td></tr>
+              <tr data-type="opportunity"><td>2026-04-27 20:58</td><td>有赞商城客服</td><td>王先生</td><td>商机预警</td><td><span class="tag green">P3</span></td><td>明确询价 + 催发货</td><td><span class="source slow">🔍 慢通道</span></td><td>周宁</td><td>高意向</td><td>否</td><td>已处理</td><td><a class="link" onclick="openDetailDrawer('view','slow','王先生','商机预警','已处理','有赞商城客服')">详情</a></td></tr>
+              <tr data-type="risk"><td>2026-04-27 20:53</td><td>抖音</td><td>陈女士</td><td>敏感预警</td><td><span class="tag orange">P2</span></td><td>命中差评 / 平台投诉</td><td><span class="source fast">⚡ 快通道</span></td><td>王超</td><td>敏感投诉</td><td>是</td><td>误报</td><td><a class="link" onclick="openDetailDrawer('view','fast','陈女士','敏感预警','误报','抖音')">详情</a></td></tr>
+              <tr data-type="risk"><td>2026-04-27 20:47</td><td>小红书</td><td>赵女士</td><td>风险预警</td><td><span class="tag orange">P2</span></td><td>连续追问 3 次未回复</td><td><span class="source slow">🔍 慢通道</span></td><td>李晴</td><td>强消极</td><td>否</td><td>已忽略</td><td><a class="link" onclick="openDetailDrawer('view','slow','赵女士','风险预警','已忽略','小红书')">详情</a></td></tr>
+            </tbody>
+          </table>
+          <div class="pagination"><span>共 538 条，每页 10 条</span><span class="page-num">‹</span><span class="page-num active">1</span><span class="page-num">2</span><span class="page-num">3</span><span class="page-num">4</span><span>…</span><span class="page-num">54</span><span class="page-num">›</span></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-strategy">
+        <div class="card">
+          <div class="section-head">
+            <h3>预警设置</h3>
+            <span>按 PRD 拆分为「预警规则 / 通知设置」</span>
+          </div>
+          <div class="tabs" id="strategyTabs">
+            <div class="tab active" data-section="rule">预警规则</div>
+            <div class="tab" data-section="notice">通知设置</div>
+          </div>
+
+          <div class="form-section active" id="strategy-rule">
+            <div class="card" style="padding:0;margin-bottom:16px;">
+              <div class="switch-row">
+                <div><div class="switch-title">转人工诉求预警</div><div class="switch-desc">预留能力，当前半托管模式默认关闭，后续全托管可开启</div></div>
+                <div class="switch"></div>
+              </div>
+              <div class="switch-row">
+                <div><div class="switch-title">风险与敏感预警</div><div class="switch-desc">投诉、退款、差评、举报、平台投诉、强消极情绪</div></div>
+                <div class="switch on"></div>
+              </div>
+              <div class="switch-row">
+                <div><div class="switch-title">商机预警</div><div class="switch-desc">询价、催成交、催发货、高意向购买表达</div></div>
+                <div class="switch on"></div>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label>触发方式：</label>
+                <div class="check-row">
+                  <label><input type="checkbox" checked /> 关键词命中（快通道）</label>
+                  <label><input type="checkbox" checked /> AI智能分析（慢通道）</label>
+                </div>
+              </div>
+              <div class="field">
+                <label>关键词来源：</label>
+                <div class="radio-row">
+                  <label><input type="radio" name="keywordSource" checked /> 自定义关键词</label>
+                  <label><input type="radio" name="keywordSource" /> 同步数字员工关键词</label>
+                </div>
+              </div>
+              <div class="field"><label>P1 生效关键词：</label><textarea>投诉
+举报
+12315
+曝光
+维权
+骗子
+退款
+媒体曝光</textarea></div>
+              <div class="field"><label>P2 生效关键词：</label><textarea>退货
+差评
+平台投诉
+质量问题
+一直没回复
+处理太慢</textarea></div>
+              <div class="field"><label>AI 情绪分阈值：</label><input class="input" value="0.70" /></div>
+              <div class="field"><label>AI 高意向阈值：</label><input class="input" value="0.65" /></div>
+              <div class="field">
+                <label>生效范围：</label>
+                <div class="radio-row">
+                  <label><input type="radio" name="scope" checked /> 全部员工</label>
+                  <label><input type="radio" name="scope" /> 指定员工部门</label>
+                </div>
+              </div>
+              <div class="field"><label>指定员工/部门：</label><select><option>请选择员工或部门</option><option>客服一组</option><option>客服二组</option><option>李晴</option></select></div>
+              <div class="field"><label>预警等级规则：</label><select><option>按系统推荐等级</option><option>全部按 P2</option><option>仅 P1 提醒</option></select></div>
+            </div>
+          </div>
+
+          <div class="form-section" id="strategy-notice">
+            <div class="form-grid">
+              <div class="field">
+                <label>接待通知：</label>
+                <select><option>通知当前接待员工</option><option>通知当前接待员工 + 主管</option><option>不通知接待员工</option></select>
+              </div>
+              <div class="field">
+                <label>监管通知：</label>
+                <select><option>P1/P2 通知监管人</option><option>仅 P1 通知监管人</option><option>全部等级通知监管人</option></select>
+              </div>
+              <div class="field">
+                <label>自动打标：</label>
+                <select><option>开启，按预警类型自动打标</option><option>关闭，仅生成预警记录</option></select>
+              </div>
+              <div class="field">
+                <label>通知频控：</label>
+                <select><option>同一客户 30 分钟内只提醒一次</option><option>同一客户 1 小时内只提醒一次</option><option>不限制</option></select>
+              </div>
+              <div class="field"><label>接待通知模板：</label><textarea>【会话预警】客户 {{customer_name}} 触发 {{warning_type}}，等级 {{level}}。请及时跟进。</textarea></div>
+              <div class="field"><label>监管通知模板：</label><textarea>【监管提醒】员工 {{staff_name}} 的客户 {{customer_name}} 触发高优先级预警，请关注处理进展。</textarea></div>
+            </div>
+          </div>
+          <div style="margin-top:16px;"><button class="btn primary">保存设置</button><button class="btn" style="margin-left:8px;">取消</button></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-detail">
+        <div class="detail-layout">
+          <div class="card">
+            <div class="section-head">
+              <h3>预警详情</h3>
+              <span>记录 ID：WRN_20260427_00123</span>
+            </div>
+            <div style="margin-bottom:16px;display:flex;gap:8px;align-items:center;">
+              <span id="detailSource" class="source fast">⚡ 快通道</span>
+              <span class="tag red">P1</span>
+              <span class="tag red">风险预警</span>
+              <span class="tag">待处理</span>
+            </div>
+            <div class="timeline">
+              <div class="event"><div class="time">20:58:11</div><div class="bubble">客户：你们这边到底什么时候处理？我已经问第三次了。</div></div>
+              <div class="event"><div class="time">20:59:04</div><div class="bubble">客户：再不处理我就去投诉了，真的很离谱。</div></div>
+              <div class="event"><div class="time">21:02:16</div><div class="bubble" style="border-color:#FFD4D1;background:#FFF8F7;"><strong>系统触发预警：</strong><br/>触发来源：<span id="detailSourceText">⚡ 快通道</span><br/>触发原因：命中“投诉 / 退款” + 情绪识别为愤怒（0.92）</div></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <div class="section-head"><h3>命中标签</h3><span>自动打标结果</span></div>
+              <span class="tag red">情绪风险_愤怒</span>
+              <span class="tag red">敏感风险_退款投诉</span>
+              <span class="tag orange">转人工诉求</span>
+            </div>
+            <div class="card">
+              <div class="section-head"><h3>建议动作</h3><span>辅助接待处理</span></div>
+              <ul class="suggest-list">
+                <li>建议 5 分钟内人工介入，优先安抚客户情绪</li>
+                <li>同步核查订单、退款、售后处理进度</li>
+                <li>如客户继续升级投诉，建议转派主管跟进</li>
+              </ul>
+              <div style="margin-top:14px;"><button class="btn primary">标记已处理</button><button class="btn" style="margin-left:8px;">标记误报</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-placeholder">
+        <div class="empty" id="placeholderText">当前菜单内容占位。此次只还原导航结构，不实现所有菜单功能。</div>
+      </section>
+
+      <div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+      <aside class="drawer" id="detailDrawer">
+        <div class="drawer-header"><h3>预警详情</h3><button class="drawer-close" onclick="closeDrawer()">×</button></div>
+        <div class="drawer-body">
+          <div class="detail-block">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+              <span id="drawerLevel" class="tag red">P1</span>
+              <span id="drawerType" class="tag red">风险预警</span>
+              <span id="drawerSource" class="source fast">⚡ 快通道</span>
+              <span id="drawerStatus" class="tag">待处理</span>
+            </div>
+            <div class="info-grid">
+              <div class="info-label">客户信息</div><div id="drawerCustomer">张女士 ｜ CUS_98231</div>
+              <div class="info-label">渠道来源</div><div id="drawerChannel">企微会话</div>
+              <div class="info-label">负责人</div><div>李晴</div>
+              <div class="info-label">触发时间</div><div>2026-04-27 21:02:16</div>
+              <div class="info-label">会话类型</div><div>单聊</div>
+              <div class="info-label">提醒状态</div><div>接待通知：已发送 ✓ ｜ 监管通知：P1 已发送 ✓ ｜ 电话提醒：已触发</div>
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <div class="detail-block-title">触发原因</div>
+            <div>客户因退款进度不满，命中投诉/12315等高风险词，并表现出强烈负向情绪。</div>
+          </div>
+
+          <div class="detail-block">
+            <div class="detail-block-title">命中原文</div>
+            <div class="quote-box">再不退钱我就去12315投诉你们</div>
+          </div>
+
+          <div class="detail-block">
+            <div class="detail-block-title">最近上下文摘要</div>
+            <div class="timeline">
+              <div class="event"><div class="time">20:58:11</div><div class="bubble">客户：我的退款什么时候能到账？</div></div>
+              <div class="event"><div class="time">20:59:04</div><div class="bubble">员工：您好，正在为您加急处理，请耐心等待。</div></div>
+              <div class="event"><div class="time">21:02:16</div><div class="bubble" style="border-color:#FFD4D1;background:#FFF8F7;">客户：再不退钱我就去12315投诉你们。</div></div>
+            </div>
+          </div>
+
+          <div class="detail-block">
+            <div class="detail-block-title">命中标签</div>
+            <span class="tag red">维权升级</span><span class="tag red">退款诉求</span><span class="tag orange">服务不满</span><span class="tag">情绪风险_愤怒</span>
+          </div>
+
+          <div class="detail-block">
+            <div class="detail-block-title">建议动作</div>
+            <ul class="suggest-list">
+              <li>5分钟内主动致电安抚，承诺2小时内给出退款方案。</li>
+              <li>如客户继续升级投诉，转派主管介入。</li>
+              <li>同步检查客户是否已被自动追加「情绪风险_愤怒」标签。</li>
+            </ul>
+          </div>
+
+          <div class="detail-block">
+            <div class="detail-block-title">处理记录 / 反馈闭环</div>
+            <div class="form-grid" style="grid-template-columns:1fr;">
+              <div class="field"><label>处理状态：</label><select><option>待处理</option><option>已处理</option><option>已忽略</option><option>误报</option></select></div>
+              <div class="field"><label>反馈标注：</label><select><option>有效</option><option>误报</option><option>待优化</option></select></div>
+              <div class="field"><label>处理备注：</label><textarea placeholder="请输入处理结论、误报原因或优化建议"></textarea></div>
+            </div>
+          </div>
+        </div>
+        <div class="drawer-footer">
+          <button class="btn" onclick="toast('已标记为待优化（示意）')">待优化</button>
+          <button class="btn" onclick="toast('已标记为有效（示意）')">标记有效</button>
+          <button class="btn" onclick="toast('已标记为已忽略（示意）')">标记已忽略</button>
+          <button class="btn" onclick="toast('已标记为误报（示意）')">标记误报</button>
+          <button class="btn primary" onclick="toast('已标记为已处理（示意）')">标记已处理</button>
+        </div>
+      </aside>
+
+      <aside class="drawer" id="settingsDrawer">
+        <div class="drawer-header"><h3>预警设置</h3><button class="drawer-close" onclick="closeDrawer()">×</button></div>
+        <div class="drawer-body">
+          <div class="detail-block">
+            <div class="tabs" id="drawerSettingsTabs">
+              <div class="tab active" data-setting="rule">预警规则</div>
+              <div class="tab" data-setting="notice">通知设置</div>
+            </div>
+
+            <div class="form-section active" id="drawer-setting-rule">
+              <div class="settings-row">
+                <div class="settings-label">事件类型</div>
+                <div class="settings-control">
+                  <div class="switch-row"><div><div class="switch-title">风险预警</div><div class="switch-desc">辱骂/威胁/投诉升级/维权举报</div></div><div class="switch on"></div></div>
+                  <div class="switch-row"><div><div class="switch-title">敏感预警</div><div class="switch-desc">退款、退货、差评、平台投诉等敏感信号</div></div><div class="switch on"></div></div>
+                  <div class="switch-row"><div><div class="switch-title">转人工诉求预警</div><div class="switch-desc">预留能力，当前半托管模式默认关闭，后续全托管可开启</div></div><div class="switch"></div></div>
+                  <div class="switch-row"><div><div class="switch-title">商机预警</div><div class="switch-desc">询价、优惠、库存、催发货等高意向信号</div></div><div class="switch on"></div></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">触发方式</div>
+                <div class="settings-control">
+                  <div class="check-row">
+                    <label><input type="checkbox" checked /> 关键词命中（快通道，秒级）</label>
+                    <label><input type="checkbox" checked /> AI智能分析（慢通道，分钟级）</label>
+                  </div>
+                  <div class="radio-row"><label><input type="radio" name="keywordSource2" checked /> 自定义关键词</label><label><input type="radio" name="keywordSource2" /> 同步数字员工关键词</label></div>
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>P1 生效关键词：</label><input class="input" style="width:260px;" value="投诉、举报、12315、曝光、维权、退款" /></div></div>
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>P2 生效关键词：</label><input class="input" style="width:260px;" value="退货、差评、平台投诉、质量问题、处理太慢" /></div></div>
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>情绪分阈值：</label><input class="input mini-input" value="0.70" /></div><div class="filter-field"><label>高意向阈值：</label><input class="input mini-input" value="0.65" /></div></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">去重频控</div>
+                <div class="settings-control">
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>同客户同类去重：</label><input class="input mini-input" value="30" /><span>分钟</span></div><div class="filter-field"><label>单会话单日上限：</label><input class="input mini-input" value="5" /><span>次</span></div></div>
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>单员工单小时上限：</label><input class="input mini-input" value="10" /><span>条</span></div></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">生效范围</div>
+                <div class="settings-control">
+                  <div class="radio-row"><label><input type="radio" name="scope2" /> 全部员工</label><label><input type="radio" name="scope2" checked /> 指定员工/部门</label></div>
+                  <div class="keyword-list"><span class="keyword-chip">客服一组</span><span class="keyword-chip">销售二组</span><span class="keyword-chip">李晴</span><span class="keyword-chip">+ 添加</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section" id="drawer-setting-notice">
+              <div class="settings-row">
+                <div class="settings-label">接待通知</div>
+                <div class="settings-control">
+                  <div class="switch-row"><div><div class="switch-title">企微工作提醒</div><div class="switch-desc">命中预警时推给当前接待员工</div></div><div class="switch on"></div></div>
+                  <div class="radio-row"><label><input type="radio" name="reception" checked /> 当前接待员工</label><label><input type="radio" name="reception" /> 指定客服组</label></div>
+                  <div class="check-row"><label><input type="checkbox" checked /> P1电话提醒</label><label><input type="checkbox" /> P2电话提醒</label></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">监管通知</div>
+                <div class="settings-control">
+                  <div class="switch-row"><div><div class="switch-title">主管/运营通知</div><div class="switch-desc">用于兜底监控与升级介入</div></div><div class="switch"></div></div>
+                  <select class="select"><option>员工主管</option><option>指定运营人员</option><option>自定义通知人</option></select>
+                  <div class="radio-row"><label><input type="radio" name="freq" /> 每次通知</label><label><input type="radio" name="freq" checked /> 每天汇总一次</label></div>
+                  <div class="filter-field"><label>延迟发送：</label><input class="input mini-input" value="5" /><span>分钟，接待侧已处理则跳过</span></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">自动打标</div>
+                <div class="settings-control">
+                  <div class="switch-row"><div><div class="switch-title">命中预警后自动给客户打标签</div><div class="switch-desc">同类标签有效期内不重复打标</div></div><div class="switch on"></div></div>
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>风险类有效期：</label><input class="input mini-input" value="7" /><span>天</span></div><div class="filter-field"><label>商机类有效期：</label><input class="input mini-input" value="3" /><span>天</span></div></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">提醒模板</div>
+                <div class="settings-control"><textarea style="min-height:96px;border:1px solid var(--line);padding:10px;">【{{level}}预警】客户：{{customer_name}}\n触发原因：{{trigger_reason}}\n关键原话：{{trigger_text}}\n建议动作：{{suggestion}}</textarea></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="drawer-footer"><button class="btn" onclick="closeDrawer()">取消</button><button class="btn primary" onclick="toast('预警设置已保存（示意）')">保存设置</button></div>
+      </aside>
+
+      <div class="toast" id="toast" style="position:fixed;right:24px;bottom:24px;background:#202033;color:#fff;padding:12px 16px;border-radius:4px;opacity:0;pointer-events:none;transition:.2s;z-index:30;"></div>
+
+    </main>
+  </div>
+
+  <script>
+    const navData = [
+      { key:'workbench', icon:'▣', title:'工作台', seconds:[] },
+      { key:'fans', icon:'♙', title:'获客涨粉', seconds:[
+        { key:'activity', label:'活动加粉', thirds:['活动列表','加粉统计','获客分析'] },
+        { key:'platform', label:'平台加粉', thirds:['平台渠道','渠道统计'] },
+        { key:'store', label:'门店加粉', thirds:['门店活码','门店导购'] },
+        { key:'private', label:'私域加粉', thirds:['私域活码','欢迎语'] },
+        { key:'group-add', label:'加群', thirds:['群活码','入群欢迎'] },
+        { key:'strategy-lib', label:'策略库', thirds:['策略模板','策略记录'] }
+      ]},
+      { key:'customer', icon:'▤', title:'客户管理', seconds:[
+        { key:'customer-list', label:'客户管理', thirds:['客户列表','客户详情'] },
+        { key:'customer-tag', label:'客户标签', thirds:['标签体系','自动打标'] },
+        { key:'customer-group', label:'客户分群', thirds:['分群规则','分群结果'] },
+        { key:'friend', label:'好友管理', thirds:['好友列表','流失提醒'] },
+        { key:'group-manage', label:'群管理', thirds:['客户群','群成员'] }
+      ]},
+      { key:'operation', icon:'▥', title:'客户运营', seconds:[
+        { key:'touch', label:'客户触达', thirds:['群发消息','人群运营','好友欢迎语','短信群发','朋友圈','朋友圈托管'] },
+        { key:'precision', label:'精准营销', thirds:['营销活动','优惠券','转化分析'] },
+        { key:'community', label:'社群营销', thirds:['群SOP','群任务','群数据'] },
+        { key:'sidebar', label:'侧边栏管理', thirds:['素材库','快捷回复','客户画像'] },
+        { key:'wechat-service', label:'微信客服', thirds:['客服接待','分流规则','质检记录'] },
+        { key:'archive', label:'会话存档', thirds:[
+          { key:'query', label:'会话查询', page:'query' },
+          { key:'records', label:'智能会话预警', page:'records' }
+        ]}
+      ]},
+      { key:'member', icon:'◇', title:'全渠道会员', seconds:[
+        { key:'member-system', label:'会员体系', thirds:['会员等级','会员权益'] },
+        { key:'points', label:'积分管理', thirds:['积分规则','积分明细'] },
+        { key:'order', label:'全渠道订单', thirds:['订单列表','渠道订单'] },
+        { key:'member-pass', label:'会员通', thirds:['会员同步','权益同步'] }
+      ]},
+      { key:'data', icon:'▥', title:'数据中心', seconds:[] },
+      { key:'settings', icon:'⚙', title:'管理设置', seconds:[] }
+    ];
+
+    const state = { primary:'operation', secondary:'archive', third:'records' };
+
+    function currentPrimary() { return navData.find(i => i.key === state.primary) || navData[0]; }
+    function currentSecondary() { return currentPrimary().seconds.find(i => i.key === state.secondary) || currentPrimary().seconds[0]; }
+    function normalizeThird(item, index) { return typeof item === 'string' ? { key: 'third-' + index, label: item } : item; }
+    function currentThird() {
+      const sec = currentSecondary();
+      if (!sec) return null;
+      return (sec.thirds || []).map(normalizeThird).find(i => i.key === state.third) || normalizeThird((sec.thirds || [])[0], 0);
+    }
+
+    function renderDarkNav() {
+      const box = document.getElementById('darkNav');
+      box.innerHTML = '<div class="avatar">☰</div>' + navData.map(primary => `
+        <div class="primary-block">
+          <div class="primary-title" data-primary="${primary.key}"><span class="icon">${primary.icon}</span><span>${primary.title}</span></div>
+          ${primary.seconds.length ? `<div class="secondary-grid">
+            ${primary.seconds.map(sec => `<button class="secondary-item ${state.primary === primary.key && state.secondary === sec.key ? 'active' : ''}" data-primary="${primary.key}" data-secondary="${sec.key}">${sec.label}</button>`).join('')}
+          </div>` : ''}
+        </div>`).join('') + '<div class="bottom-card">微商城</div><div class="bottom-card">…</div>';
+
+      box.querySelectorAll('.primary-title[data-primary]').forEach(el => {
+        el.addEventListener('click', () => {
+          const primary = navData.find(i => i.key === el.dataset.primary);
+          state.primary = primary.key;
+          state.secondary = primary.seconds[0]?.key || '';
+          state.third = primary.seconds[0]?.thirds?.[0] ? normalizeThird(primary.seconds[0].thirds[0], 0).key : '';
+          renderAll();
+        });
+      });
+      box.querySelectorAll('.secondary-item').forEach(el => {
+        el.addEventListener('click', () => {
+          state.primary = el.dataset.primary;
+          state.secondary = el.dataset.secondary;
+          const sec = currentSecondary();
+          state.third = sec?.thirds?.[0] ? normalizeThird(sec.thirds[0], 0).key : '';
+          renderAll();
+        });
+      });
+    }
+
+    function renderThirdNav() {
+      const sec = currentSecondary();
+      const box = document.getElementById('thirdNav');
+      if (!sec) { box.innerHTML = ''; return; }
+      box.innerHTML = (sec.thirds || []).map((third, index) => {
+        const item = normalizeThird(third, index);
+        return `<button class="third-item ${item.key === state.third ? 'active' : ''}" data-third="${item.key}">${item.label}</button>`;
+      }).join('');
+      box.querySelectorAll('.third-item').forEach(el => el.addEventListener('click', () => openThird(el.dataset.third)));
+    }
+
+    function openThird(key) { state.third = key; renderAll(); }
+
+    function renderContent() {
+      document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+      const p = currentPrimary();
+      const s = currentSecondary();
+      const t = currentThird();
+      const label = t?.label || p.title;
+      document.getElementById('breadcrumb').innerHTML = `${p.title}${s ? ' / ' + s.label : ''}${t ? ' / <b>' + t.label + '</b>' : ''}`;
+      const pageId = t?.page ? 'page-' + t.page : 'page-placeholder';
+      const target = document.getElementById(pageId) || document.getElementById('page-placeholder');
+      if (pageId === 'page-placeholder') {
+        document.getElementById('placeholderText').textContent = `当前为「${p.title}${s ? ' / ' + s.label : ''}${t ? ' / ' + label : ''}」菜单占位。此次只还原导航结构，不实现所有菜单功能。`;
+      }
+      target.classList.add('active');
+    }
+
+    function openDetail(source) {
+      document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+      document.getElementById('page-detail').classList.add('active');
+      document.getElementById('breadcrumb').innerHTML = '客户运营 / 会话存档 / 会话预警 / <b>预警详情</b>';
+      const sourceEl = document.getElementById('detailSource');
+      const sourceText = document.getElementById('detailSourceText');
+      if (source === 'slow') {
+        sourceEl.className = 'source slow';
+        sourceEl.textContent = '🔍 慢通道';
+        sourceText.textContent = '🔍 慢通道';
+      } else {
+        sourceEl.className = 'source fast';
+        sourceEl.textContent = '⚡ 快通道';
+        sourceText.textContent = '⚡ 快通道';
+      }
+    }
+
+
+    function showDrawer(id) {
+      document.getElementById('drawerMask').classList.add('show');
+      document.querySelectorAll('.drawer').forEach(d => d.classList.remove('show'));
+      document.getElementById(id).classList.add('show');
+    }
+    function closeDrawer() {
+      document.getElementById('drawerMask').classList.remove('show');
+      document.querySelectorAll('.drawer').forEach(d => d.classList.remove('show'));
+    }
+    function openDetailDrawer(mode, source, customer, type, status, channel) {
+      const sourceEl = document.getElementById('drawerSource');
+      const channelEl = document.getElementById('drawerChannel');
+      if (source === 'slow') {
+        sourceEl.className = 'source slow';
+        sourceEl.textContent = '🔍 慢通道';
+      } else {
+        sourceEl.className = 'source fast';
+        sourceEl.textContent = '⚡ 快通道';
+      }
+      document.getElementById('drawerCustomer').textContent = `${customer} ｜ CUS_98231`;
+      document.getElementById('drawerType').textContent = type;
+      document.getElementById('drawerStatus').textContent = status;
+      if (channelEl) channelEl.textContent = channel || '企微会话';
+      if (type === '商机预警') {
+        document.getElementById('drawerLevel').className = 'tag green';
+        document.getElementById('drawerLevel').textContent = 'P3';
+        document.getElementById('drawerType').className = 'tag green';
+      } else if (type === '敏感预警') {
+        document.getElementById('drawerLevel').className = 'tag orange';
+        document.getElementById('drawerLevel').textContent = 'P2';
+        document.getElementById('drawerType').className = 'tag orange';
+      } else {
+        document.getElementById('drawerLevel').className = 'tag red';
+        document.getElementById('drawerLevel').textContent = 'P1';
+        document.getElementById('drawerType').className = 'tag red';
+      }
+      showDrawer('detailDrawer');
+    }
+    function openSettingsDrawer() { showDrawer('settingsDrawer'); }
+    function toast(text) {
+      const el = document.getElementById('toast');
+      el.textContent = text;
+      el.style.opacity = 1;
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { el.style.opacity = 0; }, 1600);
+    }
+
+    document.querySelectorAll('#drawerSettingsTabs .tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#drawerSettingsTabs .tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('#settingsDrawer .form-section').forEach(s => s.classList.remove('active'));
+        document.getElementById('drawer-setting-' + tab.dataset.setting).classList.add('active');
+      });
+    });
+
+    document.addEventListener('click', e => {
+      if (e.target.classList && e.target.classList.contains('switch')) e.target.classList.toggle('on');
+    });
+
+    function renderAll() { renderDarkNav(); renderThirdNav(); renderContent(); }
+
+    document.querySelectorAll('#recordTabs .tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#recordTabs .tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const type = tab.dataset.type;
+        document.querySelectorAll('#page-records tbody tr').forEach(row => {
+          row.style.display = type === 'all' || row.dataset.type === type ? '' : 'none';
+        });
+      });
+    });
+
+    document.querySelectorAll('#strategyTabs .tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#strategyTabs .tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+        document.getElementById('strategy-' + tab.dataset.section).classList.add('active');
+      });
+    });
+
+
+    renderAll();
+  </script>
+</body>
+</html>
