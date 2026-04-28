@@ -1,715 +1,929 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>企微助手 - AI智能会话中心（交互原型v2）</title>
-<style>
-:root{--bg:#f5f7fb;--panel:#fff;--text:#1f2329;--sub:#646a73;--line:#e5e6eb;--brand:#3370ff;--brand-weak:#eef4ff;--danger:#f53f3f;--warn:#ff7d00;--success:#00b42a;--purple:#722ed1;--shadow:0 10px 30px rgba(15,35,95,.08);--radius:14px}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:14px}
-.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
-.sidebar{background:#101828;color:#fff;padding:20px 14px;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
-.sidebar .logo{padding:16px;border-radius:14px;background:linear-gradient(135deg,rgba(51,112,255,.22),rgba(114,46,209,.18));border:1px solid rgba(255,255,255,.08);margin-bottom:16px;text-align:center;font-size:16px;font-weight:700}
-.sidebar .section{color:#8b8fa3;font-size:11px;text-transform:uppercase;letter-spacing:1px;padding:12px 12px 4px;margin-top:8px}
-.nav-item{padding:10px 14px;border-radius:10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;font-size:13px;color:#c0c4cc}
-.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
-.nav-item.active{background:rgba(51,112,255,.25);color:#fff;font-weight:600}
-.nav-item.disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
-.nav-item .badge{font-size:10px;background:rgba(255,255,255,.15);padding:2px 6px;border-radius:4px;margin-left:auto}
-.main{padding:28px 32px;overflow-y:auto;max-height:100vh}
-.page{display:none}
-.page.active{display:block}
-.page-title{font-size:22px;font-weight:700;margin-bottom:20px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
-.card{background:var(--panel);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
-.card .label{color:var(--sub);font-size:12px;margin-bottom:6px}
-.card .value{font-size:28px;font-weight:700}
-.card .value.danger{color:var(--danger)}
-.card .value.warn{color:var(--warn)}
-.card .value.success{color:var(--success)}
-.filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
-.filter-select{padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:13px;color:var(--text);cursor:pointer}
-table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-th{background:#f8f9fc;text-align:left;padding:12px 14px;font-size:12px;color:var(--sub);font-weight:600;border-bottom:1px solid var(--line)}
-td{padding:12px 14px;border-bottom:1px solid #f2f3f5;font-size:13px}
-tr:hover td{background:#fafbfc}
-.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
-.tag-risk{background:#fff0f0;color:var(--danger)}
-.tag-sensitive{background:#fff7e6;color:var(--warn)}
-.tag-opportunity{background:#e8f7e8;color:var(--success)}
-.tag-p1{background:var(--danger);color:#fff}
-.tag-p2{background:var(--warn);color:#fff}
-.tag-p3{background:var(--brand);color:#fff}
-.tag-rule{background:var(--brand-weak);color:var(--brand)}
-.tag-ai{background:#f3eaff;color:var(--purple)}
-.tag-pending{background:#fff7e6;color:var(--warn)}
-.tag-done{background:#e8f7e8;color:var(--success)}
-.tag-false{background:#f2f3f5;color:var(--sub)}
-.tag-keyword{background:#fff0f0;color:var(--danger)}
-.tag-violation{background:#fff7e6;color:var(--warn)}
-.tag-timeout{background:var(--brand-weak);color:var(--brand)}
-.tag-exact{background:var(--brand-weak);color:var(--brand)}
-.tag-fuzzy{background:#f3eaff;color:var(--purple)}
-.tag-regex{background:#fff7e6;color:var(--warn)}
-.tag-high{color:var(--danger);font-weight:700}
-.tag-medium{color:var(--warn);font-weight:700}
-.tag-low{color:var(--sub)}
-.tag-customer{background:#e8f7e8;color:var(--success)}
-.tag-employee{background:var(--brand-weak);color:var(--brand)}
-.tag-both{background:#f3eaff;color:var(--purple)}
-.btn{padding:6px 14px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
-.btn-primary{background:var(--brand);color:#fff}
-.btn-primary:hover{background:#245bdb}
-.btn-danger{background:var(--danger);color:#fff}
-.btn-danger:hover{background:#d63030}
-.btn-outline{background:transparent;border:1px solid var(--line);color:var(--text)}
-.btn-outline:hover{border-color:var(--brand);color:var(--brand)}
-.btn-sm{padding:4px 10px;font-size:11px}
-.btn-ghost{background:transparent;color:var(--brand);border:none}
-.detail-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:24px}
-.detail-card{background:var(--panel);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
-.detail-card h3{font-size:14px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
-.info-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px}
-.info-row .lbl{color:var(--sub)}
-.chat-bubble{padding:10px 14px;border-radius:12px;max-width:80%;margin-bottom:10px;font-size:13px;line-height:1.5}
-.bubble-customer{background:#f2f3f5;align-self:flex-start;margin-right:auto}
-.bubble-employee{background:var(--brand-weak);align-self:flex-end;margin-left:auto}
-.bubble-highlight{border:2px solid var(--danger);background:#fff0f0}
-.chat-container{display:flex;flex-direction:column;gap:4px}
-.chat-time{text-align:center;color:var(--sub);font-size:11px;margin:8px 0}
-.action-area{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;resize:vertical;min-height:60px;font-family:inherit}
-.timeline{position:relative;padding-left:20px}
-.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--line)}
-.timeline-item{position:relative;padding-bottom:16px;padding-left:16px}
-.timeline-item::before{content:'';position:absolute;left:-17px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--brand)}
-.timeline-item .t-time{font-size:11px;color:var(--sub)}
-.timeline-item .t-text{font-size:13px;margin-top:2px}
-.tabs{display:flex;gap:0;border-bottom:2px solid var(--line);margin-bottom:20px}
-.tab{padding:10px 20px;cursor:pointer;font-size:13px;font-weight:600;color:var(--sub);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
-.tab.active{color:var(--brand);border-bottom-color:var(--brand)}
-.tab:hover{color:var(--brand)}
-.tab-content{display:none}
-.tab-content.active{display:block}
-.keyword-grid{display:grid;grid-template-columns:280px 1fr;gap:20px}
-.group-list{display:flex;flex-direction:column;gap:10px}
-.group-card{background:var(--panel);border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.04);cursor:pointer;border:2px solid transparent;transition:all .2s}
-.group-card:hover{border-color:var(--brand-weak)}
-.group-card.active{border-color:var(--brand)}
-.group-card .g-name{font-weight:700;font-size:14px;margin-bottom:6px}
-.group-card .g-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
-.group-card .g-stats{display:flex;justify-content:space-between;font-size:12px;color:var(--sub)}
-.toggle{width:36px;height:20px;border-radius:10px;background:#ddd;position:relative;cursor:pointer;transition:background .2s;display:inline-block;vertical-align:middle}
-.toggle.on{background:var(--success)}
-.toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .2s}
-.toggle.on::after{left:18px}
-.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.tmpl-card{background:var(--panel);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);text-align:center;transition:transform .2s}
-.tmpl-card:hover{transform:translateY(-4px)}
-.tmpl-card .emoji{font-size:40px;margin-bottom:12px}
-.tmpl-card .t-name{font-size:16px;font-weight:700;margin-bottom:4px}
-.tmpl-card .t-count{color:var(--sub);font-size:13px;margin-bottom:8px}
-.tmpl-card .t-desc{color:var(--sub);font-size:12px;margin-bottom:16px;line-height:1.5}
-.tmpl-card .t-actions{display:flex;gap:8px;justify-content:center}
-.tmpl-card.enabled{border:2px solid var(--success)}
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000}
-.modal-overlay.show{display:flex}
-.modal{background:var(--panel);border-radius:var(--radius);padding:28px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.modal h3{margin-bottom:16px}
-.modal .close{float:right;cursor:pointer;font-size:20px;color:var(--sub)}
-.config-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f2f3f5}
-.config-row .c-label{font-size:13px}
-.config-row .c-desc{font-size:11px;color:var(--sub)}
-.config-row input[type=number]{width:80px;padding:4px 8px;border:1px solid var(--line);border-radius:6px;font-size:13px}
-.warn-icon{color:var(--warn);font-weight:700}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>企微助手 - 智能会话预警中心（PRD补全版）</title>
+  <style>
+    :root {
+      --dark: #202033;
+      --brand: #155BD4;
+      --brand-weak: #E9F3FE;
+      --bg: #F5F7FA;
+      --panel: #fff;
+      --line: #E5E6EB;
+      --text: #333;
+      --sub: #999;
+      --danger: #D41F15;
+      --warn: #ED6A18;
+      --success: #11AD26;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 14px;
+    }
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 200px 120px 1fr;
+    }
+
+    /* 左侧：一级 + 二级，整体 200px 深色背景 */
+    .dark-nav {
+      width: 200px;
+      background: var(--dark);
+      color: rgba(255,255,255,.72);
+      padding: 20px 8px 10px;
+      overflow-y: auto;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      margin: 4px auto 22px;
+      background: #fff;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      box-shadow: 0 0 0 4px rgba(255,255,255,.06);
+    }
+    .primary-block { margin-bottom: 18px; }
+    .primary-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 28px;
+      padding: 0 8px;
+      color: #fff;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .primary-title .icon {
+      width: 16px;
+      text-align: center;
+      color: rgba(255,255,255,.86);
+      font-size: 14px;
+    }
+    .secondary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .secondary-item {
+      border: 0;
+      background: transparent;
+      color: rgba(255,255,255,.62);
+      text-align: left;
+      min-width: 0;
+      height: 28px;
+      line-height: 28px;
+      padding: 0 8px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .secondary-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .secondary-item.active { background: var(--brand); color: #fff; }
+    .bottom-card {
+      margin-top: 10px;
+      height: 28px;
+      line-height: 28px;
+      background: rgba(255,255,255,.10);
+      border-radius: 4px;
+      color: rgba(255,255,255,.68);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    /* 中间：三级菜单，120px 白底 */
+    .third-nav {
+      width: 120px;
+      background: #fff;
+      border-right: 1px solid var(--line);
+      padding: 16px 0;
+      overflow-y: auto;
+    }
+    .third-item {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #333;
+      height: 40px;
+      line-height: 40px;
+      padding: 0 14px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .third-item:hover { background: #F7F8FA; }
+    .third-item.active { background: var(--brand-weak); color: var(--brand); font-weight: 500; }
+
+    /* 右侧页面内容 */
+    .main { min-width: 0; padding: 20px 24px; background: #F5F7FA; }
+    .topbar { height: 40px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .breadcrumb { color: #8A8F99; font-size: 13px; }
+    .breadcrumb b { color: #333; font-weight: 500; }
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 8px 14px;
+      color: #333;
+      box-shadow: 0 1px 4px rgba(0,0,0,.03);
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    .card { background: #fff; border-radius: 4px; padding: 20px; margin-bottom: 16px; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .section-head h3 { margin: 0; font-size: 16px; font-weight: 500; }
+    .section-head span { color: var(--sub); font-size: 12px; }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .left-tools, .right-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn { border: 1px solid var(--line); background: #fff; color: #333; height: 32px; padding: 0 14px; border-radius: 2px; cursor: pointer; font-size: 13px; }
+    .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .btn.danger { color: var(--brand); border-color: var(--line); }
+    .input, .select {
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 0 10px;
+      background: #fff;
+      color: #333;
+      min-width: 180px;
+      font-size: 13px;
+    }
+    .filter-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    .filter-field { display: flex; align-items: center; gap: 8px; }
+    .filter-field label { color: #646A73; font-size: 13px; white-space: nowrap; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+    .metric-card { background: #fff; border-radius: 4px; padding: 20px; }
+    .metric-label { color: #646A73; font-size: 13px; margin-bottom: 10px; }
+    .metric-value { display: flex; align-items: baseline; gap: 8px; font-size: 30px; font-weight: 600; color: #333; }
+    .metric-unit { font-size: 13px; font-weight: 400; color: #999; }
+    .metric-trend { margin-top: 8px; color: #999; font-size: 12px; }
+    .up { color: var(--danger); }
+    .down { color: var(--success); }
+
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+    .tab { padding: 0 18px 12px; border-bottom: 2px solid transparent; color: #333; cursor: pointer; }
+    .tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 500; }
+
+    table { width: 100%; border-collapse: collapse; background: #fff; table-layout: fixed; }
+    th, td { border-bottom: 1px solid var(--line); padding: 13px 12px; text-align: left; vertical-align: middle; font-size: 13px; line-height: 1.5; word-break: break-word; }
+    th { background: #F7F8FA; color: #333; font-weight: 500; }
+    tr:hover td { background: #FAFCFF; }
+    .link { color: var(--brand); cursor: pointer; margin-right: 10px; text-decoration: none; }
+    .tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 2px; border: 1px solid #D9E8FF; color: var(--brand); background: #F5F9FF; font-size: 12px; margin-right: 6px; }
+    .tag.red { border-color: #FFD4D1; color: var(--danger); background: #FFF3F2; }
+    .tag.orange { border-color: #FFE1C2; color: var(--warn); background: #FFF7ED; }
+    .tag.green { border-color: #CDEFD2; color: var(--success); background: #F1FFF3; }
+    .source { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .source.fast { color: var(--warn); }
+    .source.slow { color: var(--brand); }
+    .tabs-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom: 16px; }
+    .tabs-row .tabs { margin-bottom:0; }
+    .tabs-row .right-tools { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .channel-badge { display:inline-flex; align-items:center; gap:6px; color:#646a73; white-space:nowrap; }
+    .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding-top: 14px; color: #646a73; font-size: 13px; }
+    .page-num { min-width: 28px; height: 28px; border: 1px solid var(--line); background: #fff; text-align: center; line-height: 26px; border-radius: 2px; }
+    .page-num.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+    .form-section { display: none; }
+    .form-section.active { display: block; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .field { background: #FAFAFA; padding: 14px; border-radius: 4px; }
+    .field label { display: block; margin-bottom: 8px; color: #646a73; }
+    .field input, .field textarea, .field select { width: 100%; border: 1px solid var(--line); border-radius: 2px; padding: 8px 10px; font-size: 13px; background: #fff; }
+    .field textarea { min-height: 88px; resize: vertical; }
+    .switch-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .switch-row:last-child { border-bottom: 0; }
+    .switch-title { font-weight: 500; margin-bottom: 4px; }
+    .switch-desc { color: #999; font-size: 12px; }
+    .switch { width: 42px; height: 24px; background: #C9CDD4; border-radius: 999px; position: relative; cursor: pointer; flex-shrink: 0; }
+    .switch::after { content: ""; position: absolute; width: 20px; height: 20px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: .18s; }
+    .switch.on { background: var(--brand); }
+    .switch.on::after { left: 20px; }
+    .check-row, .radio-row { display: flex; gap: 18px; flex-wrap: wrap; color: #333; }
+    .check-row label, .radio-row label { display: inline-flex; align-items: center; gap: 6px; margin: 0; color: #333; }
+
+    .detail-layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
+    .timeline { display: grid; gap: 12px; }
+    .event { display: grid; grid-template-columns: 88px 1fr; gap: 12px; align-items: start; }
+    .event .time { color: #999; font-size: 12px; padding-top: 5px; }
+    .event .bubble { padding: 12px 14px; background: #FAFAFA; border: 1px solid var(--line); border-radius: 4px; line-height: 1.7; }
+    .suggest-list { margin: 0; padding-left: 18px; color: #333; line-height: 1.9; }
+    .empty { padding: 56px 20px; text-align: center; color: #999; background: #fff; border-radius: 4px; }
+
+
+
+    /* 右侧抽屉：详情 / 设置 */
+    .drawer-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: .18s ease;
+      z-index: 20;
+    }
+    .drawer-mask.show { opacity: 1; pointer-events: auto; }
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 680px;
+      max-width: calc(100vw - 80px);
+      height: 100vh;
+      background: #fff;
+      box-shadow: -8px 0 24px rgba(0,0,0,.12);
+      transform: translateX(100%);
+      transition: .22s ease;
+      z-index: 21;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer.show { transform: translateX(0); }
+    .drawer-header {
+      height: 56px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .drawer-header h3 { margin: 0; font-size: 16px; font-weight: 500; }
+    .drawer-close { border: 0; background: transparent; font-size: 22px; cursor: pointer; color: #999; }
+    .drawer-body { padding: 20px; overflow-y: auto; flex: 1; background: #F7F8FA; }
+    .drawer-footer {
+      border-top: 1px solid var(--line);
+      padding: 12px 20px;
+      background: #fff;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .detail-block { background: #fff; border-radius: 4px; padding: 16px; margin-bottom: 12px; }
+    .detail-block-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; }
+    .info-grid { display: grid; grid-template-columns: 88px 1fr; gap: 8px 12px; font-size: 13px; line-height: 1.7; }
+    .info-label { color: #999; }
+    .quote-box { background: #FFF8F7; border: 1px solid #FFD4D1; border-radius: 4px; padding: 12px; line-height: 1.7; color: #333; }
+    .settings-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .settings-row:last-child { border-bottom: 0; }
+    .settings-label { color: #333; font-weight: 500; padding-top: 4px; }
+    .settings-control { display: grid; gap: 10px; }
+    .keyword-list { display: flex; gap: 8px; flex-wrap: wrap; }
+    .keyword-chip { height: 26px; line-height: 24px; padding: 0 8px; border: 1px solid #D9E8FF; color: var(--brand); background: #F5F9FF; border-radius: 2px; font-size: 12px; }
+    .mini-input { width: 88px; min-width: 88px; }
+
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 200px 120px minmax(760px, 1fr); }
+      .metric-grid { grid-template-columns: 1fr; }
+      .detail-layout, .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-<div class="app">
-<div class="sidebar">
-<div class="logo">🛡️ AI 智能会话中心</div>
-<div class="section">会话预警</div>
-<div class="nav-item active" onclick="showPage('alert-list')">📋 预警记录</div>
-<div class="nav-item" onclick="showPage('alert-detail')">📄 预警详情</div>
-<div class="nav-item" onclick="showPage('alert-strategy')">🎯 预警策略</div>
-<div class="nav-item" onclick="showPage('reminder')">🔔 工作提醒设置</div>
-<div class="section">会话质检</div>
-<div class="nav-item" onclick="showPage('qc-list')">📝 质检记录</div>
-<div class="nav-item" onclick="showPage('qc-rules')">⚙️ 质检规则</div>
-<div class="section">敏感词库</div>
-<div class="nav-item" onclick="showPage('keyword-mgr')">🔍 词库管理</div>
-<div class="nav-item" onclick="showPage('keyword-tmpl')">📦 行业模板</div>
-<div class="section">数据分析</div>
-<div class="nav-item" onclick="showPage('analysis')">📊 会话分析中心</div>
-</div>
-<div class="main">
-<!-- 页面1: 预警记录列表 -->
-<div class="page active" id="page-alert-list">
-<div class="page-title">预警记录</div>
-<div class="cards">
-<div class="card"><div class="label">今日预警数</div><div class="value">47</div></div>
-<div class="card"><div class="label">待处理</div><div class="value warn">12</div></div>
-<div class="card"><div class="label">误报数</div><div class="value">3</div></div>
-</div>
-<div class="tabs">
-<div class="tab active" onclick="switchTab(this,'alert-tab-all')">全部</div>
-<div class="tab" onclick="switchTab(this,'alert-tab-risk')">风险与敏感</div>
-<div class="tab" onclick="switchTab(this,'alert-tab-opportunity')">商机</div>
-</div>
-<div class="tab-content active" id="alert-tab-all">
-<div class="filters">
-<select class="filter-select"><option>全部时间</option><option>今天</option><option>最近7天</option><option>最近30天</option></select>
-<select class="filter-select"><option>全部类型</option><option>风险预警</option><option>敏感预警</option><option>商机预警</option></select>
-<select class="filter-select"><option>全部等级</option><option>P1</option><option>P2</option><option>P3</option></select>
-<select class="filter-select"><option>全部状态</option><option>待处理</option><option>已处理</option><option>误报</option></select>
-</div>
-<table>
-<tr><th>时间</th><th>客户</th><th>事件类型</th><th>等级</th><th>触发原因</th><th>负责人</th><th>触发来源</th><th>状态</th><th>操作</th></tr>
-<tr><td>04-20 21:32</td><td>张三丰</td><td><span class="tag tag-risk">风险预警</span></td><td><span class="tag tag-p1">P1</span></td><td>客户愤怒情绪 + 命中"投诉"</td><td>王小明</td><td><span class="tag tag-ai">AI识别</span></td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 21:15</td><td>李思思</td><td><span class="tag tag-sensitive">敏感预警</span></td><td><span class="tag tag-p2">P2</span></td><td>命中"退款" + "差评"组合词</td><td>赵丽颖</td><td><span class="tag tag-rule">规则命中</span></td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 20:58</td><td>王五</td><td><span class="tag tag-opportunity">商机预警</span></td><td><span class="tag tag-p3">P3</span></td><td>明确询价 + 催发货意图</td><td>张小花</td><td><span class="tag tag-ai">AI识别</span></td><td><span class="tag tag-done">已处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 20:41</td><td>赵六</td><td><span class="tag tag-risk">风险预警</span></td><td><span class="tag tag-p1">P1</span></td><td>命中"12315" + 威胁升级</td><td>王小明</td><td><span class="tag tag-rule">规则命中</span></td><td><span class="tag tag-done">已处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 20:23</td><td>孙七</td><td><span class="tag tag-sensitive">敏感预警</span></td><td><span class="tag tag-p2">P2</span></td><td>负面情绪持续 3 轮上下文</td><td>赵丽颖</td><td><span class="tag tag-ai">AI识别</span></td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 20:10</td><td>周八</td><td><span class="tag tag-opportunity">商机预警</span></td><td><span class="tag tag-p3">P3</span></td><td>连续追问优惠和库存</td><td>张小花</td><td><span class="tag tag-rule">规则命中</span></td><td><span class="tag tag-done">已处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 19:55</td><td>吴九</td><td><span class="tag tag-risk">风险预警</span></td><td><span class="tag tag-p2">P2</span></td><td>强消极情绪 + 售后不满</td><td>王小明</td><td><span class="tag tag-ai">AI识别</span></td><td><span class="tag tag-false">误报</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 19:30</td><td>郑十</td><td><span class="tag tag-sensitive">敏感预警</span></td><td><span class="tag tag-p1">P1</span></td><td>命中"曝光" + "媒体"</td><td>赵丽颖</td><td><span class="tag tag-rule">规则命中</span></td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-</table>
-</div>
-<div class="tab-content" id="alert-tab-risk">
-<div class="filters">
-<select class="filter-select"><option>最近7天</option><option>今天</option><option>最近30天</option></select>
-<select class="filter-select"><option>风险与敏感</option><option>仅风险</option><option>仅敏感</option></select>
-<select class="filter-select"><option>全部等级</option><option>P1</option><option>P2</option></select>
-<select class="filter-select"><option>全部状态</option><option>待处理</option><option>已处理</option><option>误报</option></select>
-</div>
-<table>
-<tr><th>时间</th><th>客户</th><th>事件类型</th><th>等级</th><th>触发原因</th><th>负责人</th><th>状态</th><th>操作</th></tr>
-<tr><td>04-20 21:32</td><td>张三丰</td><td><span class="tag tag-risk">风险预警</span></td><td><span class="tag tag-p1">P1</span></td><td>客户愤怒情绪 + 命中"投诉"</td><td>王小明</td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 21:15</td><td>李思思</td><td><span class="tag tag-sensitive">敏感预警</span></td><td><span class="tag tag-p2">P2</span></td><td>命中"退款" + "差评"组合词</td><td>赵丽颖</td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 20:41</td><td>赵六</td><td><span class="tag tag-risk">风险预警</span></td><td><span class="tag tag-p1">P1</span></td><td>命中"12315" + 威胁升级</td><td>王小明</td><td><span class="tag tag-done">已处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 19:30</td><td>郑十</td><td><span class="tag tag-sensitive">敏感预警</span></td><td><span class="tag tag-p1">P1</span></td><td>命中"曝光" + "媒体"</td><td>赵丽颖</td><td><span class="tag tag-pending">待处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-</table>
-</div>
-<div class="tab-content" id="alert-tab-opportunity">
-<div class="filters">
-<select class="filter-select"><option>最近7天</option><option>今天</option><option>最近30天</option></select>
-<select class="filter-select"><option>商机预警</option><option>高意向</option><option>催发货</option><option>优惠咨询</option></select>
-<select class="filter-select"><option>P3</option></select>
-<select class="filter-select"><option>全部状态</option><option>待跟进</option><option>已处理</option></select>
-</div>
-<table>
-<tr><th>时间</th><th>客户</th><th>商机类型</th><th>等级</th><th>触发原因</th><th>负责人</th><th>状态</th><th>操作</th></tr>
-<tr><td>04-20 20:58</td><td>王五</td><td><span class="tag tag-opportunity">商机预警</span></td><td><span class="tag tag-p3">P3</span></td><td>明确询价 + 催发货意图</td><td>张小花</td><td><span class="tag tag-done">已处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 20:10</td><td>周八</td><td><span class="tag tag-opportunity">商机预警</span></td><td><span class="tag tag-p3">P3</span></td><td>连续追问优惠和库存</td><td>张小花</td><td><span class="tag tag-done">已处理</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-<tr><td>04-20 19:42</td><td>韩梅梅</td><td><span class="tag tag-opportunity">商机预警</span></td><td><span class="tag tag-p3">P3</span></td><td>确认规格后主动询问下单方式</td><td>张小花</td><td><span class="tag tag-pending">待跟进</span></td><td><button class="btn btn-ghost btn-sm" onclick="showPage('alert-detail')">查看</button></td></tr>
-</table>
-</div>
-</div>
+  <div class="app">
+    <aside class="dark-nav" id="darkNav"><div class="avatar">☰</div></aside>
+    <aside class="third-nav" id="thirdNav"></aside>
 
-<!-- 页面2: 预警详情 -->
-<div class="page" id="page-alert-detail">
-<div style="margin-bottom:16px"><button class="btn btn-outline btn-sm" onclick="showPage('alert-list')">← 返回列表</button></div>
-<div class="page-title">预警详情</div>
-<div class="detail-grid">
-<div>
-<div class="detail-card" style="margin-bottom:20px">
-<h3>👤 客户信息</h3>
-<div class="info-row"><span class="lbl">客户昵称</span><span>张三丰</span></div>
-<div class="info-row"><span class="lbl">客户ID</span><span>wx_zhangsan_001</span></div>
-<div class="info-row"><span class="lbl">当前标签</span><span><span class="tag tag-risk">情绪风险_愤怒</span> <span class="tag tag-sensitive">敏感风险_退款投诉</span></span></div>
-<div class="info-row"><span class="lbl">负责人</span><span>王小明</span></div>
-</div>
-<div class="detail-card" style="margin-bottom:20px">
-<h3>⚠️ 预警信息</h3>
-<div class="info-row"><span class="lbl">事件类型</span><span><span class="tag tag-risk">风险预警</span></span></div>
-<div class="info-row"><span class="lbl">事件等级</span><span><span class="tag tag-p1">P1</span></span></div>
-<div class="info-row"><span class="lbl">触发时间</span><span>2026-04-20 21:32:15</span></div>
-<div class="info-row"><span class="lbl">触发来源</span><span><span class="tag tag-ai">AI识别</span></span></div>
-<div class="info-row"><span class="lbl">提醒状态</span><span><span class="tag tag-done">已送达</span></span></div>
-</div>
-<div class="detail-card">
-<h3>💬 会话上下文</h3>
-<div class="chat-container">
-<div class="chat-time">21:28</div>
-<div class="chat-bubble bubble-customer">你好，我上周买的那个面霜到了，但是用了之后脸上过敏了</div>
-<div class="chat-bubble bubble-employee">您好，非常抱歉给您带来不好的体验，请问是什么症状呢？</div>
-<div class="chat-time">21:30</div>
-<div class="chat-bubble bubble-customer">发红发痒，都起疹子了！你们这什么产品质量啊</div>
-<div class="chat-bubble bubble-employee">真的很抱歉，我帮您申请退款处理，您看可以吗？</div>
-<div class="chat-time">21:32</div>
-<div class="chat-bubble bubble-customer bubble-highlight">退款？我现在脸都烂了，退款能解决问题？我要投诉你们！再不处理我就去12315了！</div>
-</div>
-</div>
-</div>
-<div>
-<div class="detail-card" style="margin-bottom:20px">
-<h3>🎯 命中原因</h3>
-<div class="info-row"><span class="lbl">情绪分析</span><span><span class="tag tag-risk">愤怒</span> 置信度 0.92</span></div>
-<div class="info-row"><span class="lbl">命中关键词</span><span><span class="tag tag-keyword">投诉</span> <span class="tag tag-keyword">12315</span></span></div>
-<div class="info-row"><span class="lbl">意图标签</span><span>投诉升级、要求赔偿</span></div>
-<div class="info-row"><span class="lbl">触发原因</span><span>客户愤怒情绪 + 命中"投诉""12315"组合词 + 连续3轮负向表达</span></div>
-</div>
-<div class="detail-card" style="margin-bottom:20px">
-<h3>🔧 处理动作</h3>
-<textarea placeholder="添加处理备注..."></textarea>
-<div class="action-area">
-<button class="btn btn-primary">✅ 标记已处理</button>
-<button class="btn btn-outline">🚫 标记误报</button>
-</div>
-</div>
-<div class="detail-card">
-<h3>📜 历史预警</h3>
-<div class="timeline">
-<div class="timeline-item"><div class="t-time">04-20 21:32</div><div class="t-text"><span class="tag tag-p1">P1</span> 风险预警 - 愤怒+投诉 <span class="tag tag-pending">待处理</span></div></div>
-<div class="timeline-item"><div class="t-time">04-18 15:20</div><div class="t-text"><span class="tag tag-p2">P2</span> 敏感预警 - 退款咨询 <span class="tag tag-done">已处理</span></div></div>
-<div class="timeline-item"><div class="t-time">04-15 10:05</div><div class="t-text"><span class="tag tag-p3">P3</span> 商机预警 - 询价意向 <span class="tag tag-done">已处理</span></div></div>
-</div>
-</div>
-</div>
-</div>
-</div>
+    <main class="main">
+      <div class="topbar">
+        <div class="breadcrumb" id="breadcrumb">客户运营 / 会话存档 / <b>智能会话预警</b></div>
+        <div class="user-area"><span>● 智能助手</span><span>▣ 客服</span><span>刘龙名⌄</span></div>
+      </div>
 
+      <section class="page" id="page-query">
+        <div class="card">
+          <div class="section-head">
+            <h3>会话查询</h3>
+            <span>按客户、员工、关键词快速检索会话内容</span>
+          </div>
+          <div class="toolbar">
+            <div class="left-tools">
+              <input class="input" placeholder="搜索客户 / 员工 / 关键词" />
+              <select class="select"><option>全部员工</option><option>李晴</option><option>王超</option></select>
+              <select class="select"><option>近7天</option><option>今天</option><option>近30天</option></select>
+              <button class="btn primary">查询</button>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>会话时间</th><th>客户</th><th>员工</th><th>最近消息</th><th>命中标签</th><th>操作</th></tr></thead>
+            <tbody>
+              <tr><td>2026-04-27 10:21</td><td>张女士</td><td>李晴</td><td>再不处理我就去投诉了</td><td>风险 / 投诉</td><td><a class="link">查看会话</a></td></tr>
+              <tr><td>2026-04-27 09:48</td><td>王先生</td><td>周宁</td><td>今天能发货吗？多少钱？</td><td>商机 / 询价</td><td><a class="link">查看会话</a></td></tr>
+              <tr><td>2026-04-26 18:12</td><td>陈女士</td><td>王超</td><td>我要退款，体验太差了</td><td>敏感 / 退款</td><td><a class="link">查看会话</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-<!-- 页面3: 预警策略 -->
-<div class="page" id="page-alert-strategy">
-<div class="page-title">预警策略配置</div>
-<div class="detail-grid">
-<div>
-<div class="detail-card" style="margin-bottom:20px">
-<h3>🎛️ 基础开关与事件类型</h3>
-<div class="config-row"><div><div class="c-label">启用会话预警中心</div><div class="c-desc">关闭后暂停识别、打标和提醒</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">风险预警</div><div class="c-desc">愤怒、投诉升级、维权威胁</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">敏感预警</div><div class="c-desc">退款、举报、差评、曝光</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">商机预警</div><div class="c-desc">明确询价、催发货、高成交意向</div></div><span class="toggle on"></span></div>
-</div>
-<div class="detail-card" style="margin-bottom:20px">
-<h3>⚙️ 阈值与频控</h3>
-<div class="config-row"><div><div class="c-label">P1 风险阈值</div><div class="c-desc">情绪分 + 关键词组合命中</div></div><input type="number" value="85"/></div>
-<div class="config-row"><div><div class="c-label">P2 敏感阈值</div><div class="c-desc">规则词 + 上下文判定</div></div><input type="number" value="70"/></div>
-<div class="config-row"><div><div class="c-label">P3 商机阈值</div><div class="c-desc">意图分 + 行为信号</div></div><input type="number" value="65"/></div>
-<div class="config-row"><div><div class="c-label">同客户同类型去重窗口（分钟）</div><div class="c-desc">避免重复提醒轰炸</div></div><input type="number" value="15"/></div>
-</div>
-<div class="detail-card">
-<h3>👥 生效员工 / 部门</h3>
-<div class="config-row"><div><div class="c-label">生效范围</div><div class="c-desc">一期默认不全量生效，先灰度到指定团队</div></div><span class="tag tag-rule">指定员工 / 部门</span></div>
-<div style="padding:12px 0;border-bottom:1px solid #f2f3f5">
-<div style="font-size:13px;font-weight:600;margin-bottom:10px">已选员工</div>
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<span class="tag tag-rule">王小明</span><span class="tag tag-rule">赵丽颖</span><span class="tag tag-rule">张小花</span><button class="btn btn-outline btn-sm">+ 添加员工</button>
-</div>
-</div>
-<div style="padding:12px 0">
-<div style="font-size:13px;font-weight:600;margin-bottom:10px">已选部门</div>
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<span class="tag tag-ai">售后组</span><span class="tag tag-ai">活动运营组</span><button class="btn btn-outline btn-sm">+ 添加部门</button>
-</div>
-</div>
-</div>
-</div>
-<div>
-<div class="detail-card" style="margin-bottom:20px">
-<h3>🧠 判定策略</h3>
-<div class="config-row"><div><div class="c-label">规则前置过滤</div><div class="c-desc">先过滤 60%-70% 无效消息，降低成本</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">分层上下文策略</div><div class="c-desc">快速层(0轮)→标准层(3轮)→深度层</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">商机与风险冲突处理</div><div class="c-desc">同条消息同时命中时优先判为风险</div></div><span class="tag tag-rule">已开启</span></div>
-<div class="config-row"><div><div class="c-label">商机最高等级限制</div><div class="c-desc">商机类最高 P3，禁止升到 P1/P2</div></div><span class="tag tag-rule">已开启</span></div>
-</div>
-<div class="detail-card">
-<h3>🧩 触发样例预览</h3>
-<div style="font-size:13px;line-height:1.8;color:var(--sub)">
-• 客户："再不处理我就投诉 12315" → <span class="tag tag-p1">风险 P1</span><br/>
-• 客户："我要退款，你们质量太差了" → <span class="tag tag-p2">敏感 P2</span><br/>
-• 客户："今天下单能发货吗？有优惠吗" → <span class="tag tag-p3">商机 P3</span>
-</div>
-<div class="action-area" style="margin-top:16px">
-<button class="btn btn-outline">预览命中效果</button>
-<button class="btn btn-primary">保存策略</button>
-</div>
-</div>
-</div>
-</div>
-</div>
+      <!-- 智能会话预警 = 预警记录列表页 + 设置抽屉：已按 PRD 合并 -->
+      <section class="page active" id="page-records">
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-label">今日预警数</div>
+            <div class="metric-value">326 <span class="metric-unit">条</span></div>
+            <div class="metric-trend">环比昨日 <span class="up">+12.8%</span></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">待处理</div>
+            <div class="metric-value" style="color:var(--warn)">72 <span class="metric-unit">条</span></div>
+            <div class="metric-trend">环比昨日 <span class="up">+8.4%</span></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">误报数</div>
+            <div class="metric-value">31 <span class="metric-unit">条</span></div>
+            <div class="metric-trend">环比昨日 <span class="down">-2.1%</span></div>
+          </div>
+        </div>
 
-<!-- 页面4: 工作提醒设置 -->
-<div class="page" id="page-reminder">
-<div class="page-title">工作提醒设置</div>
-<div class="detail-grid">
-<div>
-<div class="detail-card" style="margin-bottom:20px">
-<h3>👤 接待通知</h3>
-<div class="config-row"><div><div class="c-label">P1 接待通知</div><div class="c-desc">10 秒内推送给当前接待员工</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">P2 接待通知</div><div class="c-desc">每 15 分钟汇总一次，避免频繁打扰</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">P3 接待通知</div><div class="c-desc">商机类每小时汇总一次</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">接待对象</div><div class="c-desc">当前接待员工 / 指定客服组</div></div><span class="tag tag-rule">当前接待员工</span></div>
-</div>
-<div class="detail-card">
-<h3>📨 接待侧提醒模板</h3>
-<div style="font-size:12px;color:var(--sub);margin-bottom:8px">P1 / P2 模板</div>
-<textarea>【{event_level}{event_type}】客户{customer_name}触发预警，原因：{trigger_reason}。建议动作：{suggestion}，请{owner_name}尽快处理。</textarea>
-<div style="font-size:12px;color:var(--sub);margin:10px 0 8px">P3 商机模板</div>
-<textarea>【P3商机提醒】客户{customer_name}出现高意向信号：{trigger_text}。建议优先跟进，推动转化。</textarea>
-</div>
-</div>
-<div>
-<div class="detail-card" style="margin-bottom:20px">
-<h3>🧭 监管通知</h3>
-<div class="config-row"><div><div class="c-label">监管通知开关</div><div class="c-desc">主管 / 运营兜底监控，默认关闭</div></div><span class="toggle"></span></div>
-<div class="config-row"><div><div class="c-label">触发条件</div><div class="c-desc">仅 P1 / P2 生效，商机默认不推监管侧</div></div><span class="tag tag-rule">P1 / P2</span></div>
-<div class="config-row"><div><div class="c-label">监管对象</div><div class="c-desc">员工主管 / 指定运营 / 自定义通知人</div></div><span class="tag tag-rule">员工主管</span></div>
-<div class="config-row"><div><div class="c-label">延迟发送</div><div class="c-desc">接待侧 5 分钟内未处理，再推送监管侧</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">待处理超时自动升级</div><div class="c-desc">超 5 分钟自动提醒主管</div></div><span class="toggle on"></span></div>
-</div>
-<div class="detail-card" style="margin-bottom:20px">
-<h3>🛣️ 路由与免打扰</h3>
-<div class="config-row"><div><div class="c-label">默认路由</div><div class="c-desc">按客户归属员工 → 组长 → 店长</div></div><span class="tag tag-rule">已启用</span></div>
-<div class="config-row"><div><div class="c-label">按技能组分配</div><div class="c-desc">售后/活动/物流按专组路由</div></div><span class="toggle on"></span></div>
-<div class="config-row"><div><div class="c-label">免打扰时段</div><div class="c-desc">23:00-08:00（P1仍强提醒）</div></div><span class="tag tag-rule">已设置</span></div>
-</div>
-<div class="detail-card">
-<h3>📌 最近提醒日志</h3>
-<table>
-<tr><th>时间</th><th>等级</th><th>通知类型</th><th>对象</th><th>状态</th></tr>
-<tr><td>20:32:10</td><td><span class="tag tag-p1">P1</span></td><td>接待通知</td><td>王小明</td><td><span class="tag tag-done">已送达</span></td></tr>
-<tr><td>20:37:20</td><td><span class="tag tag-p1">P1</span></td><td>监管通知</td><td>客服组长</td><td><span class="tag tag-done">已送达</span></td></tr>
-<tr><td>20:30:00</td><td><span class="tag tag-p2">P2</span></td><td>接待通知</td><td>赵丽颖</td><td><span class="tag tag-done">已送达</span></td></tr>
-</table>
-<div class="action-area" style="margin-top:16px">
-<button class="btn btn-outline">预览提醒</button>
-<button class="btn btn-primary">保存设置</button>
-</div>
-</div>
-</div>
-</div>
-</div>
+        <div class="card">
+          <div class="tabs-row">
+            <div class="tabs" id="recordTabs">
+              <div class="tab active" data-type="all">全部</div>
+              <div class="tab" data-type="risk">风险与敏感</div>
+              <div class="tab" data-type="opportunity">商机</div>
+            </div>
+            <div class="right-tools">
+              <span class="help">一期先做渠道来源展示与筛选，不做多渠道接入设置/状态检测</span>
+              <button class="btn primary" onclick="openSettingsDrawer()">预警设置</button>
+            </div>
+          </div>
 
-<!-- 页面3: 质检记录列表 -->
-<div class="page" id="page-qc-list">
-<div class="page-title">质检记录</div>
-<div class="cards">
-<div class="card"><div class="label">质检命中总量</div><div class="value">156</div></div>
-<div class="card"><div class="label">待复核</div><div class="value warn">42</div></div>
-<div class="card"><div class="label">确认违规</div><div class="value danger">89</div></div>
-<div class="card"><div class="label">误判率</div><div class="value">16%</div></div>
-</div>
-<div class="filters">
-<select class="filter-select"><option>全部时间</option><option>今天</option><option>最近7天</option><option>最近30天</option></select>
-<select class="filter-select"><option>全部员工</option><option>王小明</option><option>赵丽颖</option><option>张小花</option></select>
-<select class="filter-select"><option>全部规则类型</option><option>敏感词</option><option>违规话术</option><option>超时未回复</option></select>
-<select class="filter-select"><option>全部状态</option><option>待复核</option><option>确认违规</option><option>误判</option></select>
-</div>
-<table>
-<tr><th>检测时间</th><th>员工</th><th>客户</th><th>规则类型</th><th>命中规则</th><th>命中内容</th><th>复核状态</th><th>操作</th></tr>
-<tr><td>04-20 21:35</td><td>王小明</td><td>张三丰</td><td><span class="tag tag-keyword">敏感词</span></td><td>私下交易词库</td><td>"你加我私人微信吧，方便..."</td><td><span class="tag tag-pending">待复核</span></td><td><button class="btn btn-sm btn-primary">确认违规</button> <button class="btn btn-sm btn-outline">误判</button></td></tr>
-<tr><td>04-20 21:20</td><td>赵丽颖</td><td>李思思</td><td><span class="tag tag-violation">违规话术</span></td><td>承诺过度</td><td>"这个产品保证有效果，绝对..."</td><td><span class="tag tag-pending">待复核</span></td><td><button class="btn btn-sm btn-primary">确认违规</button> <button class="btn btn-sm btn-outline">误判</button></td></tr>
-<tr><td>04-20 21:05</td><td>张小花</td><td>周八</td><td><span class="tag tag-timeout">超时未回复</span></td><td>超时阈值5分钟</td><td>客户等待 8 分 32 秒未回复</td><td><span class="tag tag-done">确认违规</span></td><td><button class="btn btn-sm btn-outline" disabled>已复核</button></td></tr>
-<tr><td>04-20 20:48</td><td>王小明</td><td>赵六</td><td><span class="tag tag-keyword">敏感词</span></td><td>泄露信息词库</td><td>"您的手机号是138****5678..."</td><td><span class="tag tag-done">确认违规</span></td><td><button class="btn btn-sm btn-outline" disabled>已复核</button></td></tr>
-<tr><td>04-20 20:30</td><td>赵丽颖</td><td>孙七</td><td><span class="tag tag-violation">违规话术</span></td><td>竞品推荐</td><td>"要不您试试XX品牌的..."</td><td><span class="tag tag-pending">待复核</span></td><td><button class="btn btn-sm btn-primary">确认违规</button> <button class="btn btn-sm btn-outline">误判</button></td></tr>
-<tr><td>04-20 20:12</td><td>张小花</td><td>吴九</td><td><span class="tag tag-timeout">超时未回复</span></td><td>超时阈值5分钟</td><td>客户等待 12 分 15 秒未回复</td><td><span class="tag tag-false">误判</span></td><td><button class="btn btn-sm btn-outline" disabled>已复核</button></td></tr>
-<tr><td>04-20 19:55</td><td>王小明</td><td>郑十</td><td><span class="tag tag-keyword">敏感词</span></td><td>投诉举报词库</td><td>"退款"出现在正常解释语境中</td><td><span class="tag tag-false">误判</span></td><td><button class="btn btn-sm btn-outline" disabled>已复核</button></td></tr>
-<tr><td>04-20 19:40</td><td>赵丽颖</td><td>钱十一</td><td><span class="tag tag-violation">违规话术</span></td><td>私下交易</td><td>"走我个人支付宝也行..."</td><td><span class="tag tag-done">确认违规</span></td><td><button class="btn btn-sm btn-outline" disabled>已复核</button></td></tr>
-</table>
-</div>
+          <div class="filter-row">
+            <div class="filter-field"><label>时间范围：</label><input class="input" style="min-width:132px;" value="2026-04-27" /><span class="muted">至</span><input class="input" style="min-width:132px;" value="2026-04-27" /></div>
+            <div class="filter-field"><label>渠道来源：</label><select class="select"><option>全部渠道</option><option>企微会话</option><option>有赞商城客服</option><option>淘宝客服</option><option>抖音</option><option>小红书</option><option>美团</option></select></div>
+            <div class="filter-field"><label>员工选择：</label><select class="select"><option>全部员工</option><option>李晴</option><option>王超</option><option>周宁</option></select></div>
+            <div class="filter-field"><label>事件类型：</label><select class="select"><option>全部类型</option><option>风险</option><option>敏感</option><option>转人工诉求</option><option>商机</option></select></div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-field"><label>等级：</label><select class="select"><option>全部等级</option><option>P1</option><option>P2</option><option>P3</option></select></div>
+            <div class="filter-field"><label>状态：</label><select class="select"><option>全部状态</option><option>待处理</option><option>已处理</option><option>误报</option><option>已忽略</option></select></div>
+            <div class="filter-field"><label>是否误报：</label><select class="select"><option>全部</option><option>是</option><option>否</option></select></div>
+            <div class="filter-field"><label>触发来源：</label><select class="select"><option>全部来源</option><option>⚡ 快通道</option><option>🔍 慢通道</option></select></div>
+            <input class="input" placeholder="搜索客户 / 触发原因" />
+            <button class="btn primary">筛选</button>
+            <button class="btn">重置筛选项</button>
+          </div>
 
-<!-- 页面4: 质检规则 -->
-<div class="page" id="page-qc-rules">
-<div class="page-title">质检规则配置</div>
-<div class="tabs">
-<div class="tab active" onclick="switchTab(this,'tab-sensitive')">敏感词规则</div>
-<div class="tab" onclick="switchTab(this,'tab-violation')">违规话术规则</div>
-<div class="tab" onclick="switchTab(this,'tab-timeout')">超时未回复</div>
-</div>
-<div class="tab-content active" id="tab-sensitive">
-<div class="detail-card">
-<p style="font-size:14px;line-height:2">敏感词规则复用<strong>公共敏感词库</strong>统一管理，包含客户侧和员工侧的敏感词检测。</p>
-<p style="margin-top:12px"><button class="btn btn-primary" onclick="showPage('keyword-mgr')">🔍 前往敏感词库管理 →</button></p>
-<div style="margin-top:20px;padding:16px;background:#f8f9fc;border-radius:10px">
-<div style="font-size:13px;font-weight:600;margin-bottom:10px">当前启用状态：</div>
-<div class="info-row"><span class="lbl">员工侧专属词库</span><span><span class="tag tag-done">已启用</span> 3 个分组 / 42 个词</span></div>
-<div class="info-row"><span class="lbl">公共双向词库</span><span><span class="tag tag-done">已启用</span> 2 个分组 / 53 个词</span></div>
-</div>
-</div>
-</div>
-<div class="tab-content" id="tab-violation">
-<div class="detail-card">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-<h3 style="border:none;padding:0;margin:0">违规话术规则</h3>
-<button class="btn btn-primary btn-sm">+ 新建规则</button>
-</div>
-<table>
-<tr><th>规则名称</th><th>关键词组合</th><th>严重程度</th><th>命中数(7日)</th><th>状态</th></tr>
-<tr><td>承诺过度</td><td>"保证有效" OR "绝对没问题" OR "无条件退"</td><td><span class="tag-high">高</span></td><td>23</td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-<tr><td>私下交易</td><td>"加我私人微信" OR "转个人账户" OR "走私下"</td><td><span class="tag-high">高</span></td><td>8</td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-<tr><td>竞品推荐</td><td>"试试XX品牌" AND NOT "我们的产品比XX更好"</td><td><span class="tag-medium">中</span></td><td>5</td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-<tr><td>价格承诺</td><td>"最低价" OR "不会再降了" OR "保价"</td><td><span class="tag-medium">中</span></td><td>12</td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-</table>
-</div>
-</div>
-<div class="tab-content" id="tab-timeout">
-<div class="detail-card">
-<h3 style="margin-bottom:20px">超时未回复规则</h3>
-<div class="config-row"><div><div class="c-label">超时阈值</div><div class="c-desc">客户发送消息后，员工在此时间内未回复则标记超时</div></div><div><input type="number" value="5" min="1" max="60"/> 分钟</div></div>
-<div style="padding:12px 0;border-bottom:1px solid #f2f3f5">
-<div style="font-size:13px;font-weight:600;margin-bottom:12px">工作日时段配置</div>
-<div class="config-row"><div><div class="c-label">时段 1</div><div class="c-desc">上午接待高峰</div></div><div><input type="text" value="09:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/> - <input type="text" value="12:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/></div></div>
-<div class="config-row"><div><div class="c-label">时段 2</div><div class="c-desc">下午接待高峰</div></div><div><input type="text" value="14:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/> - <input type="text" value="18:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/></div></div>
-<div class="config-row"><div><div class="c-label">时段 3</div><div class="c-desc">晚间值班时段</div></div><div><input type="text" value="19:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/> - <input type="text" value="22:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/></div></div>
-</div>
-<div style="padding:12px 0;border-bottom:1px solid #f2f3f5">
-<div style="font-size:13px;font-weight:600;margin-bottom:12px">周末时段配置</div>
-<div class="config-row"><div><div class="c-label">周末营业时段</div><div class="c-desc">未配置则默认不检测</div></div><div><input type="text" value="10:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/> - <input type="text" value="18:00" style="width:70px;padding:4px 8px;border:1px solid var(--line);border-radius:6px"/></div></div>
-</div>
-<div class="config-row"><div><div class="c-label">排除纯表情包消息</div><div class="c-desc">客户仅发送表情包/贴图时不触发超时检测</div></div><div><span class="toggle on" onclick="this.classList.toggle('on')"></span></div></div>
-<div class="config-row"><div><div class="c-label">排除纯图片消息</div><div class="c-desc">客户仅发送图片（无文字）时不触发超时检测</div></div><div><span class="toggle" onclick="this.classList.toggle('on')"></span></div></div>
-<div style="margin-top:20px"><button class="btn btn-primary">保存配置</button></div>
-</div>
-</div>
-</div>
-<!-- 页面5: 敏感词库管理 -->
-<div class="page" id="page-keyword-mgr">
-<div class="page-title">敏感词库管理</div>
-<div class="keyword-grid">
-<div class="group-list">
-<div class="group-card active" onclick="selectGroup(this)">
-<div class="g-name">🤬 辱骂侮辱</div>
-<div class="g-meta"><span class="tag tag-customer">客户侧</span><span class="tag tag-risk">预警</span></div>
-<div class="g-stats"><span>28 个词</span><span class="toggle on" onclick="event.stopPropagation();this.classList.toggle('on')"></span></div>
-</div>
-<div class="group-card" onclick="selectGroup(this)">
-<div class="g-name">📢 投诉举报</div>
-<div class="g-meta"><span class="tag tag-customer">客户侧</span><span class="tag tag-risk">预警</span></div>
-<div class="g-stats"><span>35 个词</span><span class="toggle on" onclick="event.stopPropagation();this.classList.toggle('on')"></span></div>
-</div>
-<div class="group-card" onclick="selectGroup(this)">
-<div class="g-name">💰 退款退货</div>
-<div class="g-meta"><span class="tag tag-customer">客户侧</span><span class="tag tag-sensitive">预警</span></div>
-<div class="g-stats"><span>22 个词</span><span class="toggle on" onclick="event.stopPropagation();this.classList.toggle('on')"></span></div>
-</div>
-<div class="group-card" onclick="selectGroup(this)">
-<div class="g-name">⚖️ 威胁升级</div>
-<div class="g-meta"><span class="tag tag-customer">客户侧</span><span class="tag tag-risk">预警</span></div>
-<div class="g-stats"><span>18 个词</span><span class="toggle on" onclick="event.stopPropagation();this.classList.toggle('on')"></span></div>
-</div>
-<div class="group-card" onclick="selectGroup(this)">
-<div class="g-name">🛒 购买意向</div>
-<div class="g-meta"><span class="tag tag-customer">客户侧</span><span class="tag tag-opportunity">预警</span></div>
-<div class="g-stats"><span>30 个词</span><span class="toggle on" onclick="event.stopPropagation();this.classList.toggle('on')"></span></div>
-</div>
-<div class="group-card" onclick="selectGroup(this)">
-<div class="g-name">🚫 违规承诺</div>
-<div class="g-meta"><span class="tag tag-employee">员工侧</span><span class="tag tag-timeout">质检</span></div>
-<div class="g-stats"><span>15 个词</span><span class="toggle on" onclick="event.stopPropagation();this.classList.toggle('on')"></span></div>
-</div>
-<div class="group-card" onclick="selectGroup(this)">
-<div class="g-name">🔒 私下交易</div>
-<div class="g-meta"><span class="tag tag-employee">员工侧</span><span class="tag tag-timeout">质检</span></div>
-<div class="g-stats"><span>12 个词</span><span class="toggle on" onclick="event.stopPropagation();this.classList.toggle('on')"></span></div>
-</div>
-</div>
-<div>
-<div class="detail-card">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-<h3 style="border:none;padding:0;margin:0">🤬 辱骂侮辱 <span class="tag tag-customer">客户侧</span></h3>
-<div><input type="text" placeholder="搜索关键词..." style="padding:6px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-right:8px"/><button class="btn btn-primary btn-sm">+ 添加敏感词</button></div>
-</div>
-<table>
-<tr><th>关键词</th><th>匹配模式</th><th>严重程度</th><th>白名单词</th><th>7日命中</th><th>误判率</th><th>状态</th></tr>
-<tr><td>骗子</td><td><span class="tag tag-exact">精确</span></td><td><span class="tag-high">高</span></td><td>—</td><td style="font-weight:700;color:var(--danger)">142</td><td>8%</td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-<tr><td>垃圾</td><td><span class="tag tag-fuzzy">模糊</span></td><td><span class="tag-high">高</span></td><td>垃圾分类</td><td>87</td><td><span class="warn-icon">⚠️ 52%</span></td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-<tr><td>坑人</td><td><span class="tag tag-exact">精确</span></td><td><span class="tag-medium">中</span></td><td>—</td><td>45</td><td>12%</td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-<tr><td>无语</td><td><span class="tag tag-exact">精确</span></td><td><span class="tag-low">低</span></td><td>无语了吧哈哈</td><td>38</td><td><span class="warn-icon">⚠️ 61%</span></td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-<tr><td>什么玩意</td><td><span class="tag tag-fuzzy">模糊</span></td><td><span class="tag-medium">中</span></td><td>—</td><td>29</td><td>15%</td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-<tr><td>投诉你</td><td><span class="tag tag-exact">精确</span></td><td><span class="tag-high">高</span></td><td>—</td><td style="font-weight:700;color:var(--danger)">118</td><td>5%</td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-<tr><td>差评</td><td><span class="tag tag-exact">精确</span></td><td><span class="tag-medium">中</span></td><td>差评处理, 差评回复</td><td>67</td><td>22%</td><td><span class="toggle on" onclick="this.classList.toggle('on')"></span></td></tr>
-</table>
-</div>
-</div>
-</div>
-</div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:136px;">触发时间</th>
+                <th style="width:84px;">渠道来源</th>
+                <th style="width:84px;">客户名称</th>
+                <th style="width:84px;">事件类型</th>
+                <th style="width:64px;">等级</th>
+                <th style="width:220px;">触发原因</th>
+                <th style="width:88px;">触发来源</th>
+                <th style="width:84px;">负责人</th>
+                <th style="width:104px;">命中标签</th>
+                <th style="width:76px;">是否误报</th>
+                <th style="width:84px;">处理状态</th>
+                <th style="width:88px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-type="risk"><td>2026-04-27 21:02</td><td>企微会话</td><td>张女士</td><td>风险预警</td><td><span class="tag red">P1</span></td><td>投诉 + 退款 + 愤怒情绪</td><td><span class="source fast">⚡ 快通道</span></td><td>李晴</td><td>情绪风险</td><td>否</td><td>待处理</td><td><a class="link" onclick="openDetailDrawer('process','fast','张女士','风险预警','待处理','企微会话')">处理</a></td></tr>
+              <tr data-type="risk"><td>2026-04-27 21:00</td><td>企微会话</td><td>刘先生</td><td>转人工诉求</td><td><span class="tag red">P1</span></td><td>质疑机器人且明确要求转人工</td><td><span class="source fast">⚡ 快通道</span></td><td>机器人接待</td><td>转人工诉求</td><td>否</td><td>待处理</td><td><a class="link" onclick="openDetailDrawer('process','fast','刘先生','转人工诉求','待处理','企微会话')">处理</a></td></tr>
+              <tr data-type="opportunity"><td>2026-04-27 20:58</td><td>有赞商城客服</td><td>王先生</td><td>商机预警</td><td><span class="tag green">P3</span></td><td>明确询价 + 催发货</td><td><span class="source slow">🔍 慢通道</span></td><td>周宁</td><td>高意向</td><td>否</td><td>已处理</td><td><a class="link" onclick="openDetailDrawer('view','slow','王先生','商机预警','已处理','有赞商城客服')">详情</a></td></tr>
+              <tr data-type="risk"><td>2026-04-27 20:53</td><td>抖音</td><td>陈女士</td><td>敏感预警</td><td><span class="tag orange">P2</span></td><td>命中差评 / 平台投诉</td><td><span class="source fast">⚡ 快通道</span></td><td>王超</td><td>敏感投诉</td><td>是</td><td>误报</td><td><a class="link" onclick="openDetailDrawer('view','fast','陈女士','敏感预警','误报','抖音')">详情</a></td></tr>
+              <tr data-type="risk"><td>2026-04-27 20:47</td><td>小红书</td><td>赵女士</td><td>风险预警</td><td><span class="tag orange">P2</span></td><td>连续追问 3 次未回复</td><td><span class="source slow">🔍 慢通道</span></td><td>李晴</td><td>强消极</td><td>否</td><td>已忽略</td><td><a class="link" onclick="openDetailDrawer('view','slow','赵女士','风险预警','已忽略','小红书')">详情</a></td></tr>
+            </tbody>
+          </table>
+          <div class="pagination"><span>共 538 条，每页 10 条</span><span class="page-num">‹</span><span class="page-num active">1</span><span class="page-num">2</span><span class="page-num">3</span><span class="page-num">4</span><span>…</span><span class="page-num">54</span><span class="page-num">›</span></div>
+        </div>
+      </section>
 
-<!-- 页面6: 行业模板 -->
-<div class="page" id="page-keyword-tmpl">
-<div class="page-title">行业模板</div>
-<div class="template-grid">
-<div class="tmpl-card enabled">
-<div class="emoji">📋</div>
-<div class="t-name">通用模板</div>
-<div class="t-count">86 个敏感词</div>
-<div class="t-desc">覆盖辱骂、投诉、退款、举报等通用场景，所有行业适用</div>
-<div class="t-actions"><button class="btn btn-outline btn-sm" onclick="showModal()">预览</button><button class="btn btn-sm" style="background:var(--success);color:#fff" disabled>✅ 已启用</button></div>
-</div>
-<div class="tmpl-card">
-<div class="emoji">💄</div>
-<div class="t-name">美妆护肤</div>
-<div class="t-count">45 个敏感词</div>
-<div class="t-desc">过敏、烂脸、假货、成分、激素等美妆行业高频敏感词</div>
-<div class="t-actions"><button class="btn btn-outline btn-sm" onclick="showModal()">预览</button><button class="btn btn-primary btn-sm">启用</button></div>
-</div>
-<div class="tmpl-card">
-<div class="emoji">👶</div>
-<div class="t-name">母婴</div>
-<div class="t-count">38 个敏感词</div>
-<div class="t-desc">过期、不安全、宝宝不舒服、召回等母婴行业高频敏感词</div>
-<div class="t-actions"><button class="btn btn-outline btn-sm" onclick="showModal()">预览</button><button class="btn btn-primary btn-sm">启用</button></div>
-</div>
-<div class="tmpl-card">
-<div class="emoji">🍔</div>
-<div class="t-name">食品</div>
-<div class="t-count">42 个敏感词</div>
-<div class="t-desc">变质、拉肚子、过期、食品安全等食品行业高频敏感词</div>
-<div class="t-actions"><button class="btn btn-outline btn-sm" onclick="showModal()">预览</button><button class="btn btn-primary btn-sm">启用</button></div>
-</div>
-<div class="tmpl-card">
-<div class="emoji">📚</div>
-<div class="t-name">教育</div>
-<div class="t-count">35 个敏感词</div>
-<div class="t-desc">退费、虚假宣传、没效果、骗人等教育行业高频敏感词</div>
-<div class="t-actions"><button class="btn btn-outline btn-sm" onclick="showModal()">预览</button><button class="btn btn-primary btn-sm">启用</button></div>
-</div>
-<div class="tmpl-card">
-<div class="emoji">💉</div>
-<div class="t-name">医美</div>
-<div class="t-count">40 个敏感词</div>
-<div class="t-desc">毁容、医疗事故、手术失败、并发症等医美行业高频敏感词</div>
-<div class="t-actions"><button class="btn btn-outline btn-sm" onclick="showModal()">预览</button><button class="btn btn-primary btn-sm">启用</button></div>
-</div>
-</div>
-</div>
+      <section class="page" id="page-strategy">
+        <div class="card">
+          <div class="section-head">
+            <h3>预警设置</h3>
+            <span>按 PRD 拆分为「预警规则 / 通知设置」</span>
+          </div>
+          <div class="tabs" id="strategyTabs">
+            <div class="tab active" data-section="rule">预警规则</div>
+            <div class="tab" data-section="notice">通知设置</div>
+          </div>
 
-<!-- 模态框 -->
-<div class="modal-overlay" id="modal" onclick="if(event.target===this)hideModal()">
-<div class="modal">
-<span class="close" onclick="hideModal()">✕</span>
-<h3>📋 通用模板 - 词库预览</h3>
-<table style="margin-top:16px">
-<tr><th>关键词</th><th>分组</th><th>严重程度</th></tr>
-<tr><td>投诉</td><td>投诉举报</td><td><span class="tag-high">高</span></td></tr>
-<tr><td>12315</td><td>投诉举报</td><td><span class="tag-high">高</span></td></tr>
-<tr><td>举报</td><td>投诉举报</td><td><span class="tag-high">高</span></td></tr>
-<tr><td>退款</td><td>退款退货</td><td><span class="tag-medium">中</span></td></tr>
-<tr><td>骗子</td><td>辱骂侮辱</td><td><span class="tag-high">高</span></td></tr>
-<tr><td>曝光</td><td>威胁升级</td><td><span class="tag-high">高</span></td></tr>
-<tr><td>法院</td><td>威胁升级</td><td><span class="tag-high">高</span></td></tr>
-<tr><td>差评</td><td>投诉举报</td><td><span class="tag-medium">中</span></td></tr>
-<tr><td>维权</td><td>威胁升级</td><td><span class="tag-high">高</span></td></tr>
-<tr><td>起诉</td><td>威胁升级</td><td><span class="tag-high">高</span></td></tr>
-</table>
-<p style="margin-top:12px;color:var(--sub);font-size:12px">仅展示前 10 条，完整模板包含 86 个敏感词</p>
-</div>
-</div>
+          <div class="form-section active" id="strategy-rule">
+            <div class="card" style="padding:0;margin-bottom:16px;">
+              <div class="switch-row">
+                <div><div class="switch-title">转人工诉求预警</div><div class="switch-desc">预留能力，当前半托管模式默认关闭，后续全托管可开启</div></div>
+                <div class="switch"></div>
+              </div>
+              <div class="switch-row">
+                <div><div class="switch-title">风险与敏感预警</div><div class="switch-desc">投诉、退款、差评、举报、平台投诉、强消极情绪</div></div>
+                <div class="switch on"></div>
+              </div>
+              <div class="switch-row">
+                <div><div class="switch-title">商机预警</div><div class="switch-desc">询价、催成交、催发货、高意向购买表达</div></div>
+                <div class="switch on"></div>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label>触发方式：</label>
+                <div class="check-row">
+                  <label><input type="checkbox" checked /> 关键词命中（快通道）</label>
+                  <label><input type="checkbox" checked /> AI智能分析（慢通道）</label>
+                </div>
+              </div>
+              <div class="field">
+                <label>关键词来源：</label>
+                <div class="radio-row">
+                  <label><input type="radio" name="keywordSource" checked /> 自定义关键词</label>
+                  <label><input type="radio" name="keywordSource" /> 同步数字员工关键词</label>
+                </div>
+              </div>
+              <div class="field"><label>P1 生效关键词：</label><textarea>投诉
+举报
+12315
+曝光
+维权
+骗子
+退款
+媒体曝光</textarea></div>
+              <div class="field"><label>P2 生效关键词：</label><textarea>退货
+差评
+平台投诉
+质量问题
+一直没回复
+处理太慢</textarea></div>
+              <div class="field"><label>AI 情绪分阈值：</label><input class="input" value="0.70" /></div>
+              <div class="field"><label>AI 高意向阈值：</label><input class="input" value="0.65" /></div>
+              <div class="field">
+                <label>生效范围：</label>
+                <div class="radio-row">
+                  <label><input type="radio" name="scope" checked /> 全部员工</label>
+                  <label><input type="radio" name="scope" /> 指定员工部门</label>
+                </div>
+              </div>
+              <div class="field"><label>指定员工/部门：</label><select><option>请选择员工或部门</option><option>客服一组</option><option>客服二组</option><option>李晴</option></select></div>
+              <div class="field"><label>预警等级规则：</label><select><option>按系统推荐等级</option><option>全部按 P2</option><option>仅 P1 提醒</option></select></div>
+            </div>
+          </div>
 
+          <div class="form-section" id="strategy-notice">
+            <div class="form-grid">
+              <div class="field">
+                <label>接待通知：</label>
+                <select><option>通知当前接待员工</option><option>通知当前接待员工 + 主管</option><option>不通知接待员工</option></select>
+              </div>
+              <div class="field">
+                <label>监管通知：</label>
+                <select><option>P1/P2 通知监管人</option><option>仅 P1 通知监管人</option><option>全部等级通知监管人</option></select>
+              </div>
+              <div class="field">
+                <label>自动打标：</label>
+                <select><option>开启，按预警类型自动打标</option><option>关闭，仅生成预警记录</option></select>
+              </div>
+              <div class="field">
+                <label>通知频控：</label>
+                <select><option>同一客户 30 分钟内只提醒一次</option><option>同一客户 1 小时内只提醒一次</option><option>不限制</option></select>
+              </div>
+              <div class="field"><label>接待通知模板：</label><textarea>【会话预警】客户 {{customer_name}} 触发 {{warning_type}}，等级 {{level}}。请及时跟进。</textarea></div>
+              <div class="field"><label>监管通知模板：</label><textarea>【监管提醒】员工 {{staff_name}} 的客户 {{customer_name}} 触发高优先级预警，请关注处理进展。</textarea></div>
+            </div>
+          </div>
+          <div style="margin-top:16px;"><button class="btn primary">保存设置</button><button class="btn" style="margin-left:8px;">取消</button></div>
+        </div>
+      </section>
 
+      <section class="page" id="page-detail">
+        <div class="detail-layout">
+          <div class="card">
+            <div class="section-head">
+              <h3>预警详情</h3>
+              <span>记录 ID：WRN_20260427_00123</span>
+            </div>
+            <div style="margin-bottom:16px;display:flex;gap:8px;align-items:center;">
+              <span id="detailSource" class="source fast">⚡ 快通道</span>
+              <span class="tag red">P1</span>
+              <span class="tag red">风险预警</span>
+              <span class="tag">待处理</span>
+            </div>
+            <div class="timeline">
+              <div class="event"><div class="time">20:58:11</div><div class="bubble">客户：你们这边到底什么时候处理？我已经问第三次了。</div></div>
+              <div class="event"><div class="time">20:59:04</div><div class="bubble">客户：再不处理我就去投诉了，真的很离谱。</div></div>
+              <div class="event"><div class="time">21:02:16</div><div class="bubble" style="border-color:#FFD4D1;background:#FFF8F7;"><strong>系统触发预警：</strong><br/>触发来源：<span id="detailSourceText">⚡ 快通道</span><br/>触发原因：命中“投诉 / 退款” + 情绪识别为愤怒（0.92）</div></div>
+            </div>
+          </div>
 
-<!-- 页面9: 会话分析中心 -->
-<div class="page" id="page-analysis">
-<div class="page-title">会话分析中心</div>
-<div class="cards">
-<div class="card"><div class="label">近7天会话总量</div><div class="value">42,860</div></div>
-<div class="card"><div class="label">平均首响时长</div><div class="value warn">3分12秒</div></div>
-<div class="card"><div class="label">高风险会话占比</div><div class="value danger">6.8%</div></div>
-<div class="card"><div class="label">高意向跟进率</div><div class="value success">81%</div></div>
-</div>
-<div class="detail-grid">
-<div class="detail-card">
-<h3>📈 客户意图分布（近7天）</h3>
-<table>
-<tr><th>意图类型</th><th>会话量</th><th>占比</th><th>趋势</th></tr>
-<tr><td>价格咨询</td><td>8,420</td><td>19.6%</td><td>↑ 6.2%</td></tr>
-<tr><td>发货/物流</td><td>7,905</td><td>18.4%</td><td>↑ 2.1%</td></tr>
-<tr><td>售后退款</td><td>4,386</td><td>10.2%</td><td><span class="tag tag-high">↑ 8.9%</span></td></tr>
-<tr><td>活动咨询</td><td>6,120</td><td>14.3%</td><td>↓ 1.3%</td></tr>
-</table>
-</div>
-<div class="detail-card">
-<h3>🏅 员工服务效率排行</h3>
-<table>
-<tr><th>员工</th><th>首响时长</th><th>处理完成率</th><th>风险会话</th></tr>
-<tr><td>张晨</td><td>1分45秒</td><td>94%</td><td>12</td></tr>
-<tr><td>李敏</td><td>2分10秒</td><td>91%</td><td>18</td></tr>
-<tr><td>王璐</td><td>3分28秒</td><td>83%</td><td>27</td></tr>
-<tr><td>陈晓</td><td>4分05秒</td><td>79%</td><td>33</td></tr>
-</table>
-</div>
-</div>
-<div class="detail-card" style="margin-top:20px">
-<h3>💡 高频问题与动作建议</h3>
-<table>
-<tr><th>高频问题</th><th>发生次数</th><th>影响</th><th>建议动作</th></tr>
-<tr><td>发货时效咨询集中在晚间</td><td>1,235</td><td><span class="tag tag-p2">服务体验下降</span></td><td>补充夜间自动回复模板 + 加班值守1人</td></tr>
-<tr><td>退款进度追问重复出现</td><td>986</td><td><span class="tag tag-p1">客诉升级风险</span></td><td>退款节点自动通知客户，超48h自动升级主管</td></tr>
-<tr><td>活动规则理解偏差</td><td>760</td><td><span class="tag tag-p3">转化损失</span></td><td>统一活动FAQ并在回复建议中置顶</td></tr>
-</table>
-</div>
-</div>
+          <div>
+            <div class="card">
+              <div class="section-head"><h3>命中标签</h3><span>自动打标结果</span></div>
+              <span class="tag red">情绪风险_愤怒</span>
+              <span class="tag red">敏感风险_退款投诉</span>
+              <span class="tag orange">转人工诉求</span>
+            </div>
+            <div class="card">
+              <div class="section-head"><h3>建议动作</h3><span>辅助接待处理</span></div>
+              <ul class="suggest-list">
+                <li>建议 5 分钟内人工介入，优先安抚客户情绪</li>
+                <li>同步核查订单、退款、售后处理进度</li>
+                <li>如客户继续升级投诉，建议转派主管跟进</li>
+              </ul>
+              <div style="margin-top:14px;"><button class="btn primary">标记已处理</button><button class="btn" style="margin-left:8px;">标记误报</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-</div><!-- end .main -->
-</div><!-- end .app -->
+      <section class="page" id="page-placeholder">
+        <div class="empty" id="placeholderText">当前菜单内容占位。此次只还原导航结构，不实现所有菜单功能。</div>
+      </section>
 
-<script>
-function showToast(msg){
-  let toast=document.getElementById('toast');
-  if(!toast){
-    toast=document.createElement('div');
-    toast.id='toast';
-    toast.style.cssText='position:fixed;right:20px;bottom:20px;background:#1f2329;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;box-shadow:0 6px 20px rgba(0,0,0,.2);z-index:9999;opacity:0;transition:.2s';
-    document.body.appendChild(toast);
-  }
-  toast.textContent=msg;
-  toast.style.opacity='1';
-  clearTimeout(window.__toastTimer);
-  window.__toastTimer=setTimeout(()=>toast.style.opacity='0',1400);
-}
+      <div class="drawer-mask" id="drawerMask" onclick="closeDrawer()"></div>
+      <aside class="drawer" id="detailDrawer">
+        <div class="drawer-header"><h3>预警详情</h3><button class="drawer-close" onclick="closeDrawer()">×</button></div>
+        <div class="drawer-body">
+          <div class="detail-block">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+              <span id="drawerLevel" class="tag red">P1</span>
+              <span id="drawerType" class="tag red">风险预警</span>
+              <span id="drawerSource" class="source fast">⚡ 快通道</span>
+              <span id="drawerStatus" class="tag">待处理</span>
+            </div>
+            <div class="info-grid">
+              <div class="info-label">客户信息</div><div id="drawerCustomer">张女士 ｜ CUS_98231</div>
+              <div class="info-label">渠道来源</div><div id="drawerChannel">企微会话</div>
+              <div class="info-label">负责人</div><div>李晴</div>
+              <div class="info-label">触发时间</div><div>2026-04-27 21:02:16</div>
+              <div class="info-label">会话类型</div><div>单聊</div>
+              <div class="info-label">提醒状态</div><div>接待通知：已发送 ✓ ｜ 监管通知：P1 已发送 ✓ ｜ 电话提醒：已触发</div>
+            </div>
+          </div>
 
-function showPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const target=document.getElementById('page-'+id);
-  if(target) target.classList.add('active');
-  document.querySelectorAll('.nav-item:not(.disabled)').forEach(n=>n.classList.remove('active'));
-  const map={'alert-list':0,'alert-detail':1,'alert-strategy':2,'reminder':3,'qc-list':4,'qc-rules':5,'keyword-mgr':6,'keyword-tmpl':7,'analysis':8};
-  const navs=document.querySelectorAll('.nav-item:not(.disabled)');
-  if(navs[map[id]])navs[map[id]].classList.add('active');
-  window.scrollTo(0,0);
-}
+          <div class="detail-block">
+            <div class="detail-block-title">触发原因</div>
+            <div>客户因退款进度不满，命中投诉/12315等高风险词，并表现出强烈负向情绪。</div>
+          </div>
 
-function switchTab(el,tabId){
-  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  const parent=el.closest('.page');
-  parent.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  parent.querySelector('#'+tabId).classList.add('active');
-}
+          <div class="detail-block">
+            <div class="detail-block-title">命中原文</div>
+            <div class="quote-box">再不退钱我就去12315投诉你们</div>
+          </div>
 
-function selectGroup(el){
-  el.parentElement.querySelectorAll('.group-card').forEach(g=>g.classList.remove('active'));
-  el.classList.add('active');
-}
+          <div class="detail-block">
+            <div class="detail-block-title">最近上下文摘要</div>
+            <div class="timeline">
+              <div class="event"><div class="time">20:58:11</div><div class="bubble">客户：我的退款什么时候能到账？</div></div>
+              <div class="event"><div class="time">20:59:04</div><div class="bubble">员工：您好，正在为您加急处理，请耐心等待。</div></div>
+              <div class="event"><div class="time">21:02:16</div><div class="bubble" style="border-color:#FFD4D1;background:#FFF8F7;">客户：再不退钱我就去12315投诉你们。</div></div>
+            </div>
+          </div>
 
-function showModal(){document.getElementById('modal').classList.add('show')}
-function hideModal(){document.getElementById('modal').classList.remove('show')}
+          <div class="detail-block">
+            <div class="detail-block-title">命中标签</div>
+            <span class="tag red">维权升级</span><span class="tag red">退款诉求</span><span class="tag orange">服务不满</span><span class="tag">情绪风险_愤怒</span>
+          </div>
 
-// 通用交互：开关可点击切换
-window.addEventListener('DOMContentLoaded',()=>{
-  document.querySelectorAll('.toggle').forEach(sw=>{
-    sw.addEventListener('click',()=>{
-      sw.classList.toggle('on');
-      showToast(sw.classList.contains('on')?'已开启':'已关闭');
-    });
-  });
+          <div class="detail-block">
+            <div class="detail-block-title">建议动作</div>
+            <ul class="suggest-list">
+              <li>5分钟内主动致电安抚，承诺2小时内给出退款方案。</li>
+              <li>如客户继续升级投诉，转派主管介入。</li>
+              <li>同步检查客户是否已被自动追加「情绪风险_愤怒」标签。</li>
+            </ul>
+          </div>
 
-  // 指定页面按钮反馈
-  document.addEventListener('click',(e)=>{
-    const btn=e.target.closest('.btn');
-    if(!btn || btn.disabled) return;
-    const page=btn.closest('.page')?.id || '';
-    if(['page-alert-strategy','page-reminder','page-alert-detail'].includes(page)){
-      const txt=(btn.textContent||'').trim();
-      if(txt.includes('保存')) showToast('保存成功（示意）');
-      else if(txt.includes('预览')) showToast('已生成预览（示意）');
-      else if(txt.includes('标记已处理')) showToast('已标记为已处理（示意）');
-      else if(txt.includes('标记误报')) showToast('已标记为误报（示意）');
+          <div class="detail-block">
+            <div class="detail-block-title">处理记录 / 反馈闭环</div>
+            <div class="form-grid" style="grid-template-columns:1fr;">
+              <div class="field"><label>处理状态：</label><select><option>待处理</option><option>已处理</option><option>已忽略</option><option>误报</option></select></div>
+              <div class="field"><label>反馈标注：</label><select><option>有效</option><option>误报</option><option>待优化</option></select></div>
+              <div class="field"><label>处理备注：</label><textarea placeholder="请输入处理结论、误报原因或优化建议"></textarea></div>
+            </div>
+          </div>
+        </div>
+        <div class="drawer-footer">
+          <button class="btn" onclick="toast('已标记为待优化（示意）')">待优化</button>
+          <button class="btn" onclick="toast('已标记为有效（示意）')">标记有效</button>
+          <button class="btn" onclick="toast('已标记为已忽略（示意）')">标记已忽略</button>
+          <button class="btn" onclick="toast('已标记为误报（示意）')">标记误报</button>
+          <button class="btn primary" onclick="toast('已标记为已处理（示意）')">标记已处理</button>
+        </div>
+      </aside>
+
+      <aside class="drawer" id="settingsDrawer">
+        <div class="drawer-header"><h3>预警设置</h3><button class="drawer-close" onclick="closeDrawer()">×</button></div>
+        <div class="drawer-body">
+          <div class="detail-block">
+            <div class="tabs" id="drawerSettingsTabs">
+              <div class="tab active" data-setting="rule">预警规则</div>
+              <div class="tab" data-setting="notice">通知设置</div>
+            </div>
+
+            <div class="form-section active" id="drawer-setting-rule">
+              <div class="settings-row">
+                <div class="settings-label">事件类型</div>
+                <div class="settings-control">
+                  <div class="switch-row"><div><div class="switch-title">风险预警</div><div class="switch-desc">辱骂/威胁/投诉升级/维权举报</div></div><div class="switch on"></div></div>
+                  <div class="switch-row"><div><div class="switch-title">敏感预警</div><div class="switch-desc">退款、退货、差评、平台投诉等敏感信号</div></div><div class="switch on"></div></div>
+                  <div class="switch-row"><div><div class="switch-title">转人工诉求预警</div><div class="switch-desc">预留能力，当前半托管模式默认关闭，后续全托管可开启</div></div><div class="switch"></div></div>
+                  <div class="switch-row"><div><div class="switch-title">商机预警</div><div class="switch-desc">询价、优惠、库存、催发货等高意向信号</div></div><div class="switch on"></div></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">触发方式</div>
+                <div class="settings-control">
+                  <div class="check-row">
+                    <label><input type="checkbox" checked /> 关键词命中（快通道，秒级）</label>
+                    <label><input type="checkbox" checked /> AI智能分析（慢通道，分钟级）</label>
+                  </div>
+                  <div class="radio-row"><label><input type="radio" name="keywordSource2" checked /> 自定义关键词</label><label><input type="radio" name="keywordSource2" /> 同步数字员工关键词</label></div>
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>P1 生效关键词：</label><input class="input" style="width:260px;" value="投诉、举报、12315、曝光、维权、退款" /></div></div>
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>P2 生效关键词：</label><input class="input" style="width:260px;" value="退货、差评、平台投诉、质量问题、处理太慢" /></div></div>
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>情绪分阈值：</label><input class="input mini-input" value="0.70" /></div><div class="filter-field"><label>高意向阈值：</label><input class="input mini-input" value="0.65" /></div></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">去重频控</div>
+                <div class="settings-control">
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>同客户同类去重：</label><input class="input mini-input" value="30" /><span>分钟</span></div><div class="filter-field"><label>单会话单日上限：</label><input class="input mini-input" value="5" /><span>次</span></div></div>
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>单员工单小时上限：</label><input class="input mini-input" value="10" /><span>条</span></div></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">生效范围</div>
+                <div class="settings-control">
+                  <div class="radio-row"><label><input type="radio" name="scope2" /> 全部员工</label><label><input type="radio" name="scope2" checked /> 指定员工/部门</label></div>
+                  <div class="keyword-list"><span class="keyword-chip">客服一组</span><span class="keyword-chip">销售二组</span><span class="keyword-chip">李晴</span><span class="keyword-chip">+ 添加</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section" id="drawer-setting-notice">
+              <div class="settings-row">
+                <div class="settings-label">接待通知</div>
+                <div class="settings-control">
+                  <div class="switch-row"><div><div class="switch-title">企微工作提醒</div><div class="switch-desc">命中预警时推给当前接待员工</div></div><div class="switch on"></div></div>
+                  <div class="radio-row"><label><input type="radio" name="reception" checked /> 当前接待员工</label><label><input type="radio" name="reception" /> 指定客服组</label></div>
+                  <div class="check-row"><label><input type="checkbox" checked /> P1电话提醒</label><label><input type="checkbox" /> P2电话提醒</label></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">监管通知</div>
+                <div class="settings-control">
+                  <div class="switch-row"><div><div class="switch-title">主管/运营通知</div><div class="switch-desc">用于兜底监控与升级介入</div></div><div class="switch"></div></div>
+                  <select class="select"><option>员工主管</option><option>指定运营人员</option><option>自定义通知人</option></select>
+                  <div class="radio-row"><label><input type="radio" name="freq" /> 每次通知</label><label><input type="radio" name="freq" checked /> 每天汇总一次</label></div>
+                  <div class="filter-field"><label>延迟发送：</label><input class="input mini-input" value="5" /><span>分钟，接待侧已处理则跳过</span></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">自动打标</div>
+                <div class="settings-control">
+                  <div class="switch-row"><div><div class="switch-title">命中预警后自动给客户打标签</div><div class="switch-desc">同类标签有效期内不重复打标</div></div><div class="switch on"></div></div>
+                  <div class="filter-row" style="margin:0;"><div class="filter-field"><label>风险类有效期：</label><input class="input mini-input" value="7" /><span>天</span></div><div class="filter-field"><label>商机类有效期：</label><input class="input mini-input" value="3" /><span>天</span></div></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-label">提醒模板</div>
+                <div class="settings-control"><textarea style="min-height:96px;border:1px solid var(--line);padding:10px;">【{{level}}预警】客户：{{customer_name}}\n触发原因：{{trigger_reason}}\n关键原话：{{trigger_text}}\n建议动作：{{suggestion}}</textarea></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="drawer-footer"><button class="btn" onclick="closeDrawer()">取消</button><button class="btn primary" onclick="toast('预警设置已保存（示意）')">保存设置</button></div>
+      </aside>
+
+      <div class="toast" id="toast" style="position:fixed;right:24px;bottom:24px;background:#202033;color:#fff;padding:12px 16px;border-radius:4px;opacity:0;pointer-events:none;transition:.2s;z-index:30;"></div>
+
+    </main>
+  </div>
+
+  <script>
+    const navData = [
+      { key:'workbench', icon:'▣', title:'工作台', seconds:[] },
+      { key:'fans', icon:'♙', title:'获客涨粉', seconds:[
+        { key:'activity', label:'活动加粉', thirds:['活动列表','加粉统计','获客分析'] },
+        { key:'platform', label:'平台加粉', thirds:['平台渠道','渠道统计'] },
+        { key:'store', label:'门店加粉', thirds:['门店活码','门店导购'] },
+        { key:'private', label:'私域加粉', thirds:['私域活码','欢迎语'] },
+        { key:'group-add', label:'加群', thirds:['群活码','入群欢迎'] },
+        { key:'strategy-lib', label:'策略库', thirds:['策略模板','策略记录'] }
+      ]},
+      { key:'customer', icon:'▤', title:'客户管理', seconds:[
+        { key:'customer-list', label:'客户管理', thirds:['客户列表','客户详情'] },
+        { key:'customer-tag', label:'客户标签', thirds:['标签体系','自动打标'] },
+        { key:'customer-group', label:'客户分群', thirds:['分群规则','分群结果'] },
+        { key:'friend', label:'好友管理', thirds:['好友列表','流失提醒'] },
+        { key:'group-manage', label:'群管理', thirds:['客户群','群成员'] }
+      ]},
+      { key:'operation', icon:'▥', title:'客户运营', seconds:[
+        { key:'touch', label:'客户触达', thirds:['群发消息','人群运营','好友欢迎语','短信群发','朋友圈','朋友圈托管'] },
+        { key:'precision', label:'精准营销', thirds:['营销活动','优惠券','转化分析'] },
+        { key:'community', label:'社群营销', thirds:['群SOP','群任务','群数据'] },
+        { key:'sidebar', label:'侧边栏管理', thirds:['素材库','快捷回复','客户画像'] },
+        { key:'wechat-service', label:'微信客服', thirds:['客服接待','分流规则','质检记录'] },
+        { key:'archive', label:'会话存档', thirds:[
+          { key:'query', label:'会话查询', page:'query' },
+          { key:'records', label:'智能会话预警', page:'records' }
+        ]}
+      ]},
+      { key:'member', icon:'◇', title:'全渠道会员', seconds:[
+        { key:'member-system', label:'会员体系', thirds:['会员等级','会员权益'] },
+        { key:'points', label:'积分管理', thirds:['积分规则','积分明细'] },
+        { key:'order', label:'全渠道订单', thirds:['订单列表','渠道订单'] },
+        { key:'member-pass', label:'会员通', thirds:['会员同步','权益同步'] }
+      ]},
+      { key:'data', icon:'▥', title:'数据中心', seconds:[] },
+      { key:'settings', icon:'⚙', title:'管理设置', seconds:[] }
+    ];
+
+    const state = { primary:'operation', secondary:'archive', third:'records' };
+
+    function currentPrimary() { return navData.find(i => i.key === state.primary) || navData[0]; }
+    function currentSecondary() { return currentPrimary().seconds.find(i => i.key === state.secondary) || currentPrimary().seconds[0]; }
+    function normalizeThird(item, index) { return typeof item === 'string' ? { key: 'third-' + index, label: item } : item; }
+    function currentThird() {
+      const sec = currentSecondary();
+      if (!sec) return null;
+      return (sec.thirds || []).map(normalizeThird).find(i => i.key === state.third) || normalizeThird((sec.thirds || [])[0], 0);
     }
-  });
-});
-</script>
+
+    function renderDarkNav() {
+      const box = document.getElementById('darkNav');
+      box.innerHTML = '<div class="avatar">☰</div>' + navData.map(primary => `
+        <div class="primary-block">
+          <div class="primary-title" data-primary="${primary.key}"><span class="icon">${primary.icon}</span><span>${primary.title}</span></div>
+          ${primary.seconds.length ? `<div class="secondary-grid">
+            ${primary.seconds.map(sec => `<button class="secondary-item ${state.primary === primary.key && state.secondary === sec.key ? 'active' : ''}" data-primary="${primary.key}" data-secondary="${sec.key}">${sec.label}</button>`).join('')}
+          </div>` : ''}
+        </div>`).join('') + '<div class="bottom-card">微商城</div><div class="bottom-card">…</div>';
+
+      box.querySelectorAll('.primary-title[data-primary]').forEach(el => {
+        el.addEventListener('click', () => {
+          const primary = navData.find(i => i.key === el.dataset.primary);
+          state.primary = primary.key;
+          state.secondary = primary.seconds[0]?.key || '';
+          state.third = primary.seconds[0]?.thirds?.[0] ? normalizeThird(primary.seconds[0].thirds[0], 0).key : '';
+          renderAll();
+        });
+      });
+      box.querySelectorAll('.secondary-item').forEach(el => {
+        el.addEventListener('click', () => {
+          state.primary = el.dataset.primary;
+          state.secondary = el.dataset.secondary;
+          const sec = currentSecondary();
+          state.third = sec?.thirds?.[0] ? normalizeThird(sec.thirds[0], 0).key : '';
+          renderAll();
+        });
+      });
+    }
+
+    function renderThirdNav() {
+      const sec = currentSecondary();
+      const box = document.getElementById('thirdNav');
+      if (!sec) { box.innerHTML = ''; return; }
+      box.innerHTML = (sec.thirds || []).map((third, index) => {
+        const item = normalizeThird(third, index);
+        return `<button class="third-item ${item.key === state.third ? 'active' : ''}" data-third="${item.key}">${item.label}</button>`;
+      }).join('');
+      box.querySelectorAll('.third-item').forEach(el => el.addEventListener('click', () => openThird(el.dataset.third)));
+    }
+
+    function openThird(key) { state.third = key; renderAll(); }
+
+    function renderContent() {
+      document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+      const p = currentPrimary();
+      const s = currentSecondary();
+      const t = currentThird();
+      const label = t?.label || p.title;
+      document.getElementById('breadcrumb').innerHTML = `${p.title}${s ? ' / ' + s.label : ''}${t ? ' / <b>' + t.label + '</b>' : ''}`;
+      const pageId = t?.page ? 'page-' + t.page : 'page-placeholder';
+      const target = document.getElementById(pageId) || document.getElementById('page-placeholder');
+      if (pageId === 'page-placeholder') {
+        document.getElementById('placeholderText').textContent = `当前为「${p.title}${s ? ' / ' + s.label : ''}${t ? ' / ' + label : ''}」菜单占位。此次只还原导航结构，不实现所有菜单功能。`;
+      }
+      target.classList.add('active');
+    }
+
+    function openDetail(source) {
+      document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+      document.getElementById('page-detail').classList.add('active');
+      document.getElementById('breadcrumb').innerHTML = '客户运营 / 会话存档 / 会话预警 / <b>预警详情</b>';
+      const sourceEl = document.getElementById('detailSource');
+      const sourceText = document.getElementById('detailSourceText');
+      if (source === 'slow') {
+        sourceEl.className = 'source slow';
+        sourceEl.textContent = '🔍 慢通道';
+        sourceText.textContent = '🔍 慢通道';
+      } else {
+        sourceEl.className = 'source fast';
+        sourceEl.textContent = '⚡ 快通道';
+        sourceText.textContent = '⚡ 快通道';
+      }
+    }
+
+
+    function showDrawer(id) {
+      document.getElementById('drawerMask').classList.add('show');
+      document.querySelectorAll('.drawer').forEach(d => d.classList.remove('show'));
+      document.getElementById(id).classList.add('show');
+    }
+    function closeDrawer() {
+      document.getElementById('drawerMask').classList.remove('show');
+      document.querySelectorAll('.drawer').forEach(d => d.classList.remove('show'));
+    }
+    function openDetailDrawer(mode, source, customer, type, status, channel) {
+      const sourceEl = document.getElementById('drawerSource');
+      const channelEl = document.getElementById('drawerChannel');
+      if (source === 'slow') {
+        sourceEl.className = 'source slow';
+        sourceEl.textContent = '🔍 慢通道';
+      } else {
+        sourceEl.className = 'source fast';
+        sourceEl.textContent = '⚡ 快通道';
+      }
+      document.getElementById('drawerCustomer').textContent = `${customer} ｜ CUS_98231`;
+      document.getElementById('drawerType').textContent = type;
+      document.getElementById('drawerStatus').textContent = status;
+      if (channelEl) channelEl.textContent = channel || '企微会话';
+      if (type === '商机预警') {
+        document.getElementById('drawerLevel').className = 'tag green';
+        document.getElementById('drawerLevel').textContent = 'P3';
+        document.getElementById('drawerType').className = 'tag green';
+      } else if (type === '敏感预警') {
+        document.getElementById('drawerLevel').className = 'tag orange';
+        document.getElementById('drawerLevel').textContent = 'P2';
+        document.getElementById('drawerType').className = 'tag orange';
+      } else {
+        document.getElementById('drawerLevel').className = 'tag red';
+        document.getElementById('drawerLevel').textContent = 'P1';
+        document.getElementById('drawerType').className = 'tag red';
+      }
+      showDrawer('detailDrawer');
+    }
+    function openSettingsDrawer() { showDrawer('settingsDrawer'); }
+    function toast(text) {
+      const el = document.getElementById('toast');
+      el.textContent = text;
+      el.style.opacity = 1;
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { el.style.opacity = 0; }, 1600);
+    }
+
+    document.querySelectorAll('#drawerSettingsTabs .tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#drawerSettingsTabs .tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('#settingsDrawer .form-section').forEach(s => s.classList.remove('active'));
+        document.getElementById('drawer-setting-' + tab.dataset.setting).classList.add('active');
+      });
+    });
+
+    document.addEventListener('click', e => {
+      if (e.target.classList && e.target.classList.contains('switch')) e.target.classList.toggle('on');
+    });
+
+    function renderAll() { renderDarkNav(); renderThirdNav(); renderContent(); }
+
+    document.querySelectorAll('#recordTabs .tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#recordTabs .tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const type = tab.dataset.type;
+        document.querySelectorAll('#page-records tbody tr').forEach(row => {
+          row.style.display = type === 'all' || row.dataset.type === type ? '' : 'none';
+        });
+      });
+    });
+
+    document.querySelectorAll('#strategyTabs .tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#strategyTabs .tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+        document.getElementById('strategy-' + tab.dataset.section).classList.add('active');
+      });
+    });
+
+
+    renderAll();
+  </script>
 </body>
 </html>
